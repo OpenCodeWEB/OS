@@ -1,0 +1,59 @@
+name = "pocwu"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+pages_build_output_dir = "dist"
+
+[env.production]
+vars = { ENVIRONMENT = "production", GITHUB_APP_SLUG = "opencodeweb" }
+[[env.production.services]]
+binding = "GLOBE_DO"
+service = "pocwu-globe-relay"
+[[env.production.kv_namespaces]]
+binding = "SESSIONS_KV"
+id = "f664fcc8a19745f196948cd33ea2fe28"
+
+[[env.production.kv_namespaces]]
+binding = "DEVICES_KV"
+id = "9631d086c834474f8cd3ee9e65555add"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "opencodeabs"
+database_id = "ac9be9b0-bfd3-498d-b8d8-a38f4d6ecb32"
+
+[[env.production.kv_namespaces]]
+binding = "AG_TOKENS_KV"
+id = "4746613824af45aba9c043bc20cb09d7"
+
+[[env.production.services]]
+binding = "AG_WORKER"
+service = "opencodewebsag-worker"
+
+[[kv_namespaces]]
+binding = "SESSIONS_KV"
+id = "f664fcc8a19745f196948cd33ea2fe28"
+
+[[kv_namespaces]]
+binding = "DEVICES_KV"
+id = "9631d086c834474f8cd3ee9e65555add"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "opencodeabs"
+database_id = "ac9be9b0-bfd3-498d-b8d8-a38f4d6ecb32"
+
+# Service binding to the GlobeRelayDO Worker (deployed separately from do-worker/)
+[[services]]
+binding = "GLOBE_DO"
+service = "pocwu-globe-relay"
+
+# KV namespace for AG bot tokens
+[[kv_namespaces]]
+binding = "AG_TOKENS_KV"
+id = "4746613824af45aba9c043bc20cb09d7"
+
+# Service binding to the OpenCodeWEBsAG webhook worker
+[[services]]
+binding = "AG_WORKER"
+service = "opencodewebsag-worker"

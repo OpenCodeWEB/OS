@@ -1,0 +1,6 @@
+# OpenCodeABs/UX Python tooling
+# Install: pip install -r scripts/requirements.txt
+#
+# Core scripts (generate_cities.py, validate.py) use stdlib only.
+# Optional dependencies for extended features:
+jsonschema>=4.20

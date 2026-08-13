@@ -1,0 +1,90 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Wrangler local state
+.wrangler/
+
+# Rust build artifacts
+rswasm-globe-physics/target/
+
+# C build artifacts
+native/globe_test
+native/globe_math.wasm
+
+# Go build artifacts
+cmd/pocwu/pocwu
+cmd/pocwu/pocwu.exe
+
+# Pascal build artifacts
+tools/globe
+tools/globe.exe
+*.ppu
+*.o
+
+# D build artifacts
+tools/globe.exe
+
+# Crystal build artifacts
+*.dwarf
+
+# GitHub Actions (no workflow token scope)
+.github/
+
+# Screenshots (root-level only)
+/pocwu-*.png
+/production-globe.png
+/community-hub-live.png
+/login-button-visible.png
+/page-*.png
+
+# Playwright
+.playwright-mcp/
+test-results/
+
+# Screenshots and snapshots
+pocwu-homepage-snapshot.md
+pocwu-screenshot.png
+pocwu-live-screenshot.png
+community-hub-live.png
+deployment-details.txt
+pocwu-project-page.txt
+pocwu-settings.txt
+cloudflare-wnp-snapshot.txt
+
+# Editor
+*.local
+
+# ── Local PRD Isolation (managed by prd-orchestrator) ──
+# All PRD documents are strictly local. Never push to GitHub or sync to cloud.
+OpenCodeWEBsPRD/
+**/OpenCodeWEBsPRD/
+**/PRD*.md

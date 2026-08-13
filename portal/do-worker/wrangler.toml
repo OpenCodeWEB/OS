@@ -1,0 +1,18 @@
+name = "pocwu-globe-relay"
+compatibility_date = "2025-10-08"
+compatibility_flags = ["nodejs_compat"]
+
+main = "src/index.ts"
+
+# Durable Object binding
+[[durable_objects.bindings]]
+name = "GLOBE_RELAY_DO"
+class_name = "GlobeRelayDO"
+
+# Migration — create the DO's SQLite storage
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GlobeRelayDO"]
+
+[observability]
+enabled = true

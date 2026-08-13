@@ -1,0 +1,19 @@
+name = "opencodeweb"
+main = "index.ts"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+# No routes - this worker is the gateway itself at opencodeweb.xup.workers.dev
+
+[vars]
+ENVIRONMENT = "production"
+
+# Service binding to the OpenCodeWEBsAG webhook worker
+[[services]]
+binding = "AG_WORKER"
+service = "opencodewebsag-worker"
+
+# Service binding to the Globe Durable Object relay
+[[services]]
+binding = "GLOBE_RELAY"
+service = "pocwu-globe-relay"

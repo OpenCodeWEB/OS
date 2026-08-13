@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="OpenCodeABsUI/UX - Enterprise-grade OpenCode ecosystem plugin and hybrid infrastructure manager" />
+
+    <!-- PWA: Manifest & Theme -->
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="OpenCodeABs" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="application-name" content="OpenCodeABsUI/UX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://pocwu.pages.dev" />
+
+    <!-- Google Fonts with display=swap for zero FOIT -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>OpenCodeABsUI/UX</title>
+    <script>
+      // Inline critical CSS to prevent FOUC — applied before any render
+      document.documentElement.classList.add("bg-surface", "text-white", "antialiased");
+    </script>
+  </head>
+  <body>
+    <!-- Visible loading indicator while JS bundles load -->
+    <div id="root">
+      <div style="display:flex;min-height:100vh;align-items:center;justify-content:center;background:#07070a">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+          <div style="width:32px;height:32px;border:2px solid rgba(99,102,241,0.3);border-top-color:rgb(99,102,241);border-radius:50%;animation:spin .8s linear infinite"></div>
+          <span style="color:rgba(255,255,255,0.3);font-size:14px">Loading OpenCodeABsUI…</span>
+        </div>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

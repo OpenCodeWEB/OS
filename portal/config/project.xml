@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  project.xml — Project metadata for OpenCodeABs/UX
+  Converted from TypeScript configuration (package.json, wrangler.toml, cities.json)
+-->
+<project>
+  <name>OpenCodeABs/UX</name>
+  <version>0.1.0</version>
+  <description>Enterprise OpenCode ecosystem plugin and hybrid infrastructure manager</description>
+
+  <frontend>
+    <framework>React 18</framework>
+    <language>TypeScript</language>
+    <bundler>Vite 5</bundler>
+    <styling>Tailwind CSS 3</styling>
+  </frontend>
+
+  <deployment>
+    <platform>Cloudflare Pages</platform>
+    <production>https://pocwu.pages.dev</production>
+    <branch>main</branch>
+    <functions>true</functions>
+    <durableObjects>true</durableObjects>
+  </deployment>
+
+  <globe>
+    <engine>COBE 2.0.1</engine>
+    <cities count="15"/>
+    <arcs count="9"/>
+    <autoRotation>0.005</autoRotation>
+    <resolution>2x</resolution>
+  </globe>
+
+  <polyglot>
+    <totalLanguages>37+</totalLanguages>
+    <languages>
+      <lang>TypeScript</lang>
+      <lang>JavaScript</lang>
+      <lang>Rust</lang>
+      <lang>Python</lang>
+      <lang>Go</lang>
+      <lang>C</lang>
+      <lang>Zig</lang>
+      <lang>Dart</lang>
+      <lang>Swift</lang>
+      <lang>Haskell</lang>
+      <lang>Clojure</lang>
+      <lang>Elixir</lang>
+      <lang>OCaml</lang>
+      <lang>F#</lang>
+      <lang>Crystal</lang>
+      <lang>Racket</lang>
+      <lang>Perl</lang>
+      <lang>R</lang>
+      <lang>Julia</lang>
+      <lang>D</lang>
+      <lang>Pascal</lang>
+      <lang>Forth</lang>
+    </languages>
+  </polyglot>
+</project>

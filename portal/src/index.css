@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  ::selection {
+    background: theme("colors.brand.600");
+    color: white;
+  }
+}
+
+@layer components {
+  .card-surface {
+    @apply rounded-xl border border-white/5 bg-surface-raised p-6 backdrop-blur-sm;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full bg-brand-600/20 px-3 py-1 text-xs font-medium text-brand-300;
+  }
+
+  .glow-border {
+    @apply relative overflow-hidden rounded-xl border border-brand-500/20;
+  }
+
+  .glow-border::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
+    background: radial-gradient(
+      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      theme("colors.brand.500" / 0.06),
+      transparent 40%
+    );
+  }
+
+  .glow-border:hover::before {
+    opacity: 1;
+  }
+}

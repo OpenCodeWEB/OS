@@ -1,0 +1,18 @@
+# =============================================================================
+# OpenCodeWEB Core Server Gateway — Cloudflare Worker configuration
+#
+# Deployed at: https://opencodewebservers.xup.workers.dev
+# Source repo: https://github.com/OpenCodeWEB/Servers
+#
+# Required secrets (set via `wrangler secret put` or GitHub Actions):
+#   WEBHOOK_SECRET       — GitHub webhook verification secret
+#   OWNER_SECRET_TOKEN   — Owner (ABsUP) verification token for private
+#                          sandbox preview access
+# =============================================================================
+
+name = "opencodewebservers"
+main = "src/index.ts"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+# No routes — this worker is reachable at <name>.xup.workers.dev directly.

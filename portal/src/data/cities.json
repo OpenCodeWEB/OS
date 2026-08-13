@@ -1,0 +1,58 @@
+{
+  "cities": [
+    { "id": "sf",        "label": "San Francisco", "lat": 37.78,  "lng": -122.44 },
+    { "id": "nyc",       "label": "New York",      "lat": 40.71,  "lng": -74.01  },
+    { "id": "london",    "label": "London",        "lat": 51.51,  "lng": -0.13   },
+    { "id": "paris",     "label": "Paris",         "lat": 48.86,  "lng": 2.35    },
+    { "id": "tokyo",     "label": "Tokyo",         "lat": 35.68,  "lng": 139.65  },
+    { "id": "shanghai",  "label": "Shanghai",      "lat": 31.23,  "lng": 121.47  },
+    { "id": "delhi",     "label": "Delhi",         "lat": 28.61,  "lng": 77.23   },
+    { "id": "sydney",    "label": "Sydney",        "lat": -33.87, "lng": 151.21  },
+    { "id": "saopaulo",  "label": "São Paulo",    "lat": -23.55, "lng": -46.63  },
+    { "id": "moscow",    "label": "Moscow",        "lat": 55.76,  "lng": 37.62   },
+    { "id": "dubai",     "label": "Dubai",         "lat": 25.20,  "lng": 55.27   },
+    { "id": "capetown",  "label": "Cape Town",     "lat": -33.92, "lng": 18.42   },
+    { "id": "mexico",    "label": "Mexico City",   "lat": 19.43,  "lng": -99.13  },
+    { "id": "singapore", "label": "Singapore",     "lat": 1.35,   "lng": 103.82  },
+    { "id": "istanbul",  "label": "Istanbul",      "lat": 41.01,  "lng": 28.96   }
+  ],
+  "arcs": [
+    { "from": "sf",   "to": "tokyo"    },
+    { "from": "nyc",  "to": "london"   },
+    { "from": "london","to": "paris"   },
+    { "from": "tokyo", "to": "sydney"  },
+    { "from": "delhi", "to": "shanghai"},
+    { "from": "dubai", "to": "singapore"},
+    { "from": "saopaulo","to": "nyc"   },
+    { "from": "mexico","to": "moscow"  },
+    { "from": "istanbul","to": "dubai" }
+  ],
+  "globe": {
+    "autoRotateSpeed": 0.005,
+    "dragSensitivity": 0.005,
+    "friction": 0.95,
+    "velocityThreshold": 0.0001,
+    "maxGlobeSize": 480,
+    "minGlobeSize": 240,
+    "resolutionScale": 2,
+    "theta": 0.3,
+    "dark": 1,
+    "diffuse": 0.9,
+    "mapSamples": 16000,
+    "mapBrightness": 5,
+    "markerSize": 0.025,
+    "selfMarkerSize": 0.065,
+    "peerMarkerSize": 0.04,
+    "arcWidth": 0.5,
+    "arcHeight": 0.3,
+    "markerElevation": 0.02
+  },
+  "colors": {
+    "base": [0.2, 0.2, 0.8],
+    "marker": [0.1, 0.8, 1.0],
+    "glow": [0.18, 0.18, 0.55],
+    "arc": [0.2, 0.6, 1.0],
+    "self": [0.3, 1.0, 1.0],
+    "peerArc": [0.3, 0.8, 1.0]
+  }
+}

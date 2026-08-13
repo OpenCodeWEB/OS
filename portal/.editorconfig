@@ -1,0 +1,23 @@
+# .editorconfig — Editor configuration for OpenCodeABs/UX
+# https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{go,py,rb,rs,zig,ex,exs}]
+indent_size = 4
+
+[*.{vert,frag}]
+indent_size = 4
+
+[Makefile]
+indent_style = tab
+
+[{*.bat,*.ps1}]
+end_of_line = crlf

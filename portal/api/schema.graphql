@@ -1,0 +1,82 @@
+# schema.graphql — GraphQL API schema for OpenCodeABs/UX
+#
+# Converted from TypeScript REST API patterns in functions/api/
+# Defines the data shapes exposed by the Cloudflare Pages Functions.
+
+type Position {
+  lat: Float!
+  lng: Float!
+  id: String!
+}
+
+type Marker {
+  type: String!
+  position: Position!
+}
+
+type Peer {
+  id: String!
+  lat: Float!
+  lng: Float!
+  country: String
+  region: String
+}
+
+type GlobeState {
+  peers: [Peer!]!
+  selfId: String!
+  connectionCount: Int!
+}
+
+type City {
+  id: String!
+  name: String!
+  location: [Float!]!
+}
+
+type Arc {
+  from: String!
+  to: String!
+  color: [Float!]!
+}
+
+type GlobeConfig {
+  cities: [City!]!
+  arcs: [Arc!]!
+  autoRotateSpeed: Float!
+  dragSensitivity: Float!
+}
+
+type Org {
+  name: String!
+  displayName: String!
+  mission: String!
+  owner: String!
+  verified: Boolean!
+  agentCount: Int!
+}
+
+type Post {
+  id: String!
+  title: String!
+  body: String!
+  category: String!
+  author: String!
+  replyCount: Int!
+  createdAt: String!
+}
+
+type Query {
+  globeState: GlobeState!
+  globeConfig: GlobeConfig!
+  orgs: [Org!]!
+  org(name: String!): Org
+  posts(category: String): [Post!]!
+  post(id: String!): Post
+  health: String!
+}
+
+type Mutation {
+  movePosition(lat: Float!, lng: Float!): Boolean!
+  createPost(title: String!, body: String!, category: String!): Post!
+}

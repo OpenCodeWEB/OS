@@ -1,0 +1,4 @@
+# robots.txt — Search engine crawling rules for OpenCodeABs/UX
+# https://pocwu.pages.dev
+User-agent: *
+Allow: /

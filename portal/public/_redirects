@@ -1,0 +1,6 @@
+# Case-normalize AG paths — uppercase /AG must resolve to the SPA dashboard
+/AG /ag 301
+/AG/* /ag/:splat 301
+
+# SPA fallback — all unmatched paths serve index.html
+/* /index.html 200

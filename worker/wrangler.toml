@@ -1,0 +1,28 @@
+name = "opencodewebsag-worker"
+main = "src/index.ts"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace for AG bot tokens (create in Cloudflare dashboard)
+[[kv_namespaces]]
+binding = "AG_TOKENS_KV"
+id = "4746613824af45aba9c043bc20cb09d7"
+
+# KV namespace for AG metrics + contributor leaderboard
+[[kv_namespaces]]
+binding = "AG_METRICS"
+id = "b43dd9f38e1c4d62a057b7cb2e7311a8"
+
+# Daily 00:00 UTC - sync Live Analytics + Contributor Leaderboard from GitHub API
+[triggers]
+crons = ["0 0 * * *"]
+
+# Secrets to set via `wrangler secret put`:
+# WEBHOOK_SECRET           — GitHub webhook HMAC secret (also metrics fallback)
+# METRICS_WEBHOOK_SECRET   — optional dedicated secret for POST /api/metrics/update
+# APP_ID                   — GitHub App ID
+# PRIVATE_KEY              — GitHub App RSA private key (PEM)
+# INSTALLATION_ID          — GitHub App installation ID
+# ALLOWED_ACCOUNTS         — comma-separated GitHub logins allowed to drive the
+#                            bot (tenant isolation for the public app).
+#                            Defaults to OpenCodeWEB,ABsUP,ABsUPs when unset.

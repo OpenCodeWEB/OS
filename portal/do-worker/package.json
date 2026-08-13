@@ -1,0 +1,16 @@
+{
+  "name": "pocwu-globe-relay",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GlobeRelayDO — Durable Object WebSocket relay for MultiplayerGlobe",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "cf-typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260724.1",
+    "typescript": "^5.5.3",
+    "wrangler": "^4.114.0"
+  }
+}

@@ -1,0 +1,30 @@
+# pocwu.service — Systemd service for OpenCodeABs/UX production server
+#
+# Converted from TypeScript deploy patterns (deploy.ps1, deploy.sh)
+# Install: sudo cp config/pocwu.service /etc/systemd/system/
+#          sudo systemctl enable --now pocwu
+
+[Unit]
+Description=OpenCodeABs/UX Production Server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/pocwu
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node node_modules/.bin/serve dist -l 3000
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

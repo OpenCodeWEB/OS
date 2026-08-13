@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Globe icon — converted from inline TSX SVG in Footer/Layout -->
+  <defs>
+    <radialGradient id="ocean" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#1a3a5c"/>
+      <stop offset="100%" stop-color="#0d1b2a"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="rgba(0,150,255,0.3)"/>
+    </radialGradient>
+  </defs>
+  <!-- Outer glow -->
+  <circle cx="50" cy="50" r="48" fill="url(#glow)"/>
+  <!-- Globe body -->
+  <circle cx="50" cy="50" r="45" fill="url(#ocean)" stroke="#0055dc" stroke-width="1"/>
+  <!-- Lat/lng grid lines (simplified) -->
+  <ellipse cx="50" cy="50" rx="45" ry="15" fill="none" stroke="#003366" stroke-width="0.3" opacity="0.5"/>
+  <ellipse cx="50" cy="50" rx="15" ry="45" fill="none" stroke="#003366" stroke-width="0.3" opacity="0.5"/>
+  <line x1="5" y1="50" x2="95" y2="50" stroke="#003366" stroke-width="0.3" opacity="0.5"/>
+  <line x1="50" y1="5" x2="50" y2="95" stroke="#003366" stroke-width="0.3" opacity="0.5"/>
+  <!-- Continents hint -->
+  <path d="M25 30 Q30 25 38 28 Q42 30 40 38 Q35 42 28 40 Z" fill="#1a5276" opacity="0.6"/>
+  <path d="M55 25 Q65 20 75 28 Q78 35 72 40 Q65 42 58 38 Q55 32 55 25Z" fill="#1a5276" opacity="0.5"/>
+  <path d="M45 55 Q55 50 65 55 Q68 62 60 68 Q50 70 45 65 Z" fill="#1a5276" opacity="0.4"/>
+  <!-- Markers (SF, NYC, London, Tokyo) -->
+  <circle cx="30" cy="32" r="1.5" fill="#00aaff"/>
+  <circle cx="46" cy="30" r="1.5" fill="#00aaff"/>
+  <circle cx="55" cy="25" r="1.5" fill="#00aaff"/>
+  <circle cx="78" cy="26" r="1.5" fill="#00aaff"/>
+</svg>
