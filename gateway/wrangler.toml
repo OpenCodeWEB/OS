@@ -13,6 +13,11 @@ ENVIRONMENT = "production"
 binding = "AG_WORKER"
 service = "opencodewebsag-worker"
 
+# Service binding to the AiA Connector (aia.xup.workers.dev)
+[[services]]
+binding = "AIA_CONNECTOR"
+service = "aia"
+
 # Service binding to the Globe Durable Object relay
 [[services]]
 binding = "GLOBE_RELAY"

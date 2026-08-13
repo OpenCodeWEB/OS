@@ -40,3 +40,6 @@ core/aia/memory/
 core/aia/lessons.jsonl
 run/
 *.pid
+
+# Wrangler local cache (never commit)
+.wrangler/

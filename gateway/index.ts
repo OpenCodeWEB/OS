@@ -35,6 +35,7 @@ export interface Env {
 
   // Service bindings
   AG_WORKER: Fetcher;
+  AIA_CONNECTOR: Fetcher;
   GLOBE_RELAY?: Fetcher;
 
   // Environment
@@ -103,6 +104,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     return proxyToWorker(request, env, env.AG_WORKER, url, "/api/ag");
   }
 
+  // Proxy to AiA Connector (lessons sync + research)
+  // aia.xup.workers.dev serves /sync, /lessons, /research
+  if (path.startsWith("/api/aia/")) {
+    return proxyToWorker(request, env, env.AIA_CONNECTOR, url, "/api/aia");
+  }
+
   // Proxy to AG Worker metrics endpoints (no prefix strip — worker owns the full path)
   if (path.startsWith("/api/metrics/")) {
     return proxyToWorker(request, env, env.AG_WORKER, url, "");
@@ -161,6 +168,13 @@ async function authenticate(
   // Public health probe: CI/CD pipelines and uptime monitors must be able
   // to verify the gateway without credentials. Returns only status info.
   if (path === "/health" && request.method === "GET") {
+    return { authenticated: true };
+  }
+
+  // Public AiA connector: the engine's lesson sync + research endpoints at
+  // /api/aia/* are open by design (Zero-Constraint ingestion). Reads and
+  // writes flow to the aia worker; optional bearer keys are still honored.
+  if (path.startsWith("/api/aia/")) {
     return { authenticated: true };
   }
 

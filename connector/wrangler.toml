@@ -1,0 +1,13 @@
+# OpenCodeWEB OS — AiA Connector Worker (aia.xup.workers.dev)
+name = "aia"
+main = "src/index.ts"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace: persisted lessons shared across the whole fleet
+[[kv_namespaces]]
+binding = "AIA_LESSONS"
+id = "787d024e752d4943a353d0f461ca83cd"
+
+[vars]
+ENVIRONMENT = "production"

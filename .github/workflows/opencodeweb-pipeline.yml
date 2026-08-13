@@ -195,6 +195,13 @@ jobs:
         working-directory: servers
         run: npx wrangler deploy --minify
 
+      - name: Deploy AiA connector (aia.xup.workers.dev)
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        working-directory: connector
+        run: npx wrangler deploy --minify
+
       - name: Report deploy status
         run: |
           if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
@@ -229,6 +236,25 @@ jobs:
           done
           echo "health_status=degraded" >> "$GITHUB_OUTPUT"
           echo "::warning::Gateway health check failed after 3 attempts"
+
+      - name: Ping AiA connector health endpoint
+        id: aia-health
+        continue-on-error: true
+        run: |
+          CONNECTOR="https://aia.xup.workers.dev/health"
+          for i in 1 2 3; do
+            CODE=$(curl -s -o /tmp/aia-health.json -w '%{http_code}' --max-time 20 "$CONNECTOR" || true)
+            echo "AiA connector probe $i/3: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              echo "AiA connector healthy:"
+              cat /tmp/aia-health.json
+              echo "aia_health_status=ok" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "aia_health_status=degraded" >> "$GITHUB_OUTPUT"
+          echo "::warning::AiA connector health check failed after 3 attempts"
           exit 1
 
       - name: Self-healing alert (open GitHub issue on failure)
