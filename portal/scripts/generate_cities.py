@@ -17,8 +17,7 @@ import json
 import math
 import os
 import sys
-from dataclasses import dataclass, field, asdict
-from typing import List, Optional, Tuple
+from dataclasses import asdict, dataclass
 
 # ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -32,18 +31,18 @@ EARTH_RADIUS_KM = 6371.0
 class City:
     id: str
     name: str
-    location: Tuple[float, float]  # (lat, lng)
+    location: tuple[float, float]  # (lat, lng)
     label: str = ""
 
 @dataclass
 class Arc:
     from_: str  # city id
     to: str     # city id
-    color: Tuple[float, float, float] = (0.3, 0.8, 1.0)
+    color: tuple[float, float, float] = (0.3, 0.8, 1.0)
 
 # ─── Default Data ────────────────────────────────────────────────────────────
 
-DEFAULT_CITIES: List[City] = [
+DEFAULT_CITIES: list[City] = [
     City("sf",     "San Francisco",   (37.77, -122.42)),
     City("nyc",    "New York",        (40.71,  -74.01)),
     City("london", "London",          (51.50,   -0.12)),
@@ -61,7 +60,7 @@ DEFAULT_CITIES: List[City] = [
     City("ist",    "Istanbul",        (41.01,   28.98)),
 ]
 
-DEFAULT_ARCS: List[Arc] = [
+DEFAULT_ARCS: list[Arc] = [
     Arc("sf", "tokyo"),
     Arc("nyc", "london"),
     Arc("london", "dubai"),
@@ -102,9 +101,9 @@ def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng / 2) ** 2
     return 2 * EARTH_RADIUS_KM * math.asin(math.sqrt(a))
 
-def validate_json(data: dict) -> List[str]:
+def validate_json(data: dict) -> list[str]:
     """Validate the cities.json structure. Returns list of issues (empty = valid)."""
-    errors: List[str] = []
+    errors: list[str] = []
     cities = data.get("cities", [])
     arcs = data.get("arcs", [])
 
@@ -120,9 +119,9 @@ def validate_json(data: dict) -> List[str]:
         if cid in city_ids:
             errors.append(f"Duplicate city id '{cid}'")
         city_ids[cid] = c
-        loc = c.get("location", [])
-        if len(loc) != 2:
-            errors.append(f"City '{cid}': location must be [lat, lng]")
+        loc = c.get("location") or [c.get("lat"), c.get("lng")]
+        if len(loc) != 2 or None in loc:
+            errors.append(f"City '{cid}': location must be [lat, lng] (or lat/lng fields)")
         else:
             lat, lng = loc
             if not (-90 <= lat <= 90):
@@ -145,10 +144,10 @@ def validate_json(data: dict) -> List[str]:
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 def build_data(
-    cities: Optional[List[City]] = None,
-    arcs: Optional[List[Arc]] = None,
-    colors: Optional[dict] = None,
-    globe_params: Optional[dict] = None,
+    cities: list[City] | None = None,
+    arcs: list[Arc] | None = None,
+    colors: dict | None = None,
+    globe_params: dict | None = None,
 ) -> dict:
     if cities is None:
         cities = DEFAULT_CITIES
@@ -197,7 +196,7 @@ def main():
     args = parser.parse_args()
 
     if args.validate:
-        with open(OUTPUT_PATH, "r") as f:
+        with open(OUTPUT_PATH) as f:
             data = json.load(f)
         errors = validate_json(data)
         if errors:
