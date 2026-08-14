@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenCodeWEB OS — Desktop</title>
+  <link rel="stylesheet" href="/ui/styles.css" />
+  <link rel="icon" href="/ui/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◈</span>
+      <div class="brand-text">
+        <h1>OpenCodeWEB <span class="accent">OS</span></h1>
+        <p class="tagline">Zero-Constraint Universal OS — ABsUP &amp; ABsUPs</p>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="chat">AiA Chat Studio</button>
+      <button class="tab" data-tab="roadmap">Roadmap</button>
+      <button class="tab" data-tab="logs">System Logs</button>
+    </nav>
+    <div class="conn-badge" id="conn-badge" title="WebSocket connection">● connecting…</div>
+  </header>
+
+  <main>
+    <!-- ══════════════════ DASHBOARD ══════════════════ -->
+    <section id="tab-dashboard" class="panel active">
+      <div class="grid-3">
+        <div class="card" id="card-kernel">
+          <h2>Core Kernel Status</h2>
+          <div class="big-state" id="kernel-state">…</div>
+          <dl class="kv">
+            <dt>IPC endpoint</dt><dd id="kernel-ipc">—</dd>
+            <dt>Uptime</dt><dd id="kernel-uptime">—</dd>
+            <dt>AiA daemon</dt><dd id="kernel-aia">—</dd>
+            <dt>AiA pid</dt><dd id="kernel-aia-pid">—</dd>
+          </dl>
+        </div>
+
+        <div class="card">
+          <h2>Hardware Profile</h2>
+          <dl class="kv">
+            <dt>CPU threads</dt><dd id="hw-cpu">—</dd>
+            <dt>RAM</dt><dd id="hw-ram">—</dd>
+            <dt>Vulkan</dt><dd id="hw-vulkan">—</dd>
+            <dt>CUDA</dt><dd id="hw-cuda">—</dd>
+            <dt>Platform</dt><dd id="hw-platform">—</dd>
+            <dt>Python</dt><dd id="hw-python">—</dd>
+          </dl>
+        </div>
+
+        <div class="card">
+          <h2>Active Edge Link</h2>
+          <div class="edge-hero">
+            <div class="big-state" id="edge-primary-state">…</div>
+            <a id="edge-primary-url" href="#" target="_blank">—</a>
+            <p class="sub" id="edge-latency">—</p>
+          </div>
+          <h3>Dynamic Sub-Links <span class="hint">(auto-spawned)</span></h3>
+          <ul class="node-list" id="edge-nodes"><li class="muted">no nodes yet</li></ul>
+          <div class="actions">
+            <button id="edge-spawn-btn" class="btn">Spawn Node Now</button>
+            <button id="edge-refresh-btn" class="btn ghost">Refresh</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h2>AiA Master Intelligence Engine</h2>
+          <dl class="kv">
+            <dt>Engine</dt><dd id="aia-engine">—</dd>
+            <dt>Raw turns</dt><dd id="aia-turns">—</dd>
+            <dt>Summaries</dt><dd id="aia-summaries">—</dd>
+            <dt>Guard rejections</dt><dd id="aia-guard">—</dd>
+            <dt>Uptime</dt><dd id="aia-uptime">—</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h2>Roadmap Sync</h2>
+          <dl class="kv">
+            <dt>Items</dt><dd id="rm-items">—</dd>
+            <dt>Active polls</dt><dd id="rm-polls">—</dd>
+          </dl>
+          <h3>Leaderboard (24h, founder-locked)</h3>
+          <ol class="board" id="rm-board"><li class="muted">—</li></ol>
+          <div class="actions">
+            <button id="rm-sync-btn" class="btn ghost">Sync to Edge (dry-run)</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Daemon</h2>
+          <dl class="kv">
+            <dt>Local endpoint</dt><dd id="dm-endpoint">http://ABsUP:8080</dd>
+            <dt>Uptime</dt><dd id="dm-uptime">—</dd>
+            <dt>Policy</dt><dd id="dm-policy">Zero-Constraint</dd>
+          </dl>
+          <p class="policy-note" id="dm-policy-text">Immutable Zero-Constraint Policy: no token limits, no hard timeouts, no artificial quotas, no throttling.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ AiA CHAT STUDIO ══════════════════ -->
+    <section id="tab-chat" class="panel">
+      <div class="chat-layout">
+        <div class="card chat-card">
+          <h2>AiA Chat Studio <span class="hint">— send a prompt, watch the engine act</span></h2>
+          <div class="chat-window" id="chat-window">
+            <div class="msg system">
+              <span class="who">SYSTEM</span>
+              <p>Immutable Zero-Constraint Policy active. Ask anything — no limits, no quotas.</p>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input id="chat-text" type="text" placeholder="Prompt AiA… (e.g. summarize the kernel architecture)" autocomplete="off" />
+            <button id="chat-send" class="btn">Send</button>
+          </div>
+          <div class="hint">Prompts proposing rate limits / token caps / timeouts are permanently rejected by the guard.</div>
+        </div>
+        <div class="card trace-card">
+          <h2>System Action Trace</h2>
+          <div class="trace-window" id="trace-window"><div class="muted">No actions yet.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ ROADMAP ══════════════════ -->
+    <section id="tab-roadmap" class="panel">
+      <div class="roadmap-layout">
+        <div class="card">
+          <h2>Live Roadmap Portal <span class="hint">— embedded from pocwu.pages.dev/roadmap</span></h2>
+          <iframe id="roadmap-iframe" src="https://pocwu.pages.dev/roadmap" title="OpenCodeWEB Roadmap"></iframe>
+        </div>
+        <div class="card">
+          <h2>Local Roadmap State</h2>
+          <div class="trace-window" id="roadmap-local">
+            <div class="muted">Loading…</div>
+          </div>
+          <div class="actions">
+            <button id="rm-chat-btn" class="btn ghost">Ingest sample chat</button>
+            <button id="rm-refresh-btn" class="btn ghost">Refresh</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ SYSTEM LOGS ══════════════════ -->
+    <section id="tab-logs" class="panel">
+      <div class="card">
+        <h2>System Logs <span class="hint">— live stream over WebSocket</span></h2>
+        <pre class="log-window" id="log-window">—</pre>
+        <div class="actions">
+          <button id="log-clear" class="btn ghost">Clear</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>OpenCodeWEB OS — Founders <strong>ABsUP</strong> &amp; <strong>ABsUPs</strong></span>
+    <span class="policy">Immutable Zero-Constraint Policy: no token limits · no hard timeouts · no artificial quotas · no throttling</span>
+    <span id="footer-links">gateway <a href="https://opencodeweb.xup.workers.dev" target="_blank">opencodeweb.xup.workers.dev</a> · portal <a href="https://pocwu.pages.dev" target="_blank">pocwu.pages.dev</a></span>
+  </footer>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>

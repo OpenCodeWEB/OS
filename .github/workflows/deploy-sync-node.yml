@@ -1,0 +1,94 @@
+# OpenCodeWEB OS — Dynamic Sync-Node Provisioner
+#
+# Triggered by dynamic_edge_provisioner.py via workflow_dispatch when edge
+# load exceeds thresholds. Deploys (or deletes) a stateless replica worker
+# at https://sync-node-<node_id>.xup.workers.dev with zero downtime.
+#
+# Required repo secrets (else steps skip gracefully):
+#   CLOUDFLARE_API_TOKEN
+#   CLOUDFLARE_ACCOUNT_ID
+#
+# Maintainers: ABsUP & ABsUPs
+
+name: deploy-sync-node
+
+on:
+  workflow_dispatch:
+    inputs:
+      node_id:
+        description: "Unique node id (uuid hex)"
+        required: true
+        type: string
+      reason:
+        description: "Spawn reason (auto-scale signal)"
+        required: false
+        default: "auto-scale"
+        type: string
+      action:
+        description: "deploy | delete"
+        required: false
+        default: "deploy"
+        type: choice
+        options:
+          - deploy
+          - delete
+
+concurrency:
+  group: sync-node-${{ inputs.node_id }}
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    name: Provision sync-node-${{ inputs.node_id }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy sync node (${{ inputs.node_id }})
+        if: inputs.action == 'deploy' && env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        working-directory: worker/sync-node
+        run: |
+          npx wrangler deploy --minify --name sync-node-${{ inputs.node_id }} --var NODE_ID:${{ inputs.node_id }}
+          echo "node_url=https://sync-node-${{ inputs.node_id }}.xup.workers.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Delete sync node (${{ inputs.node_id }})
+        if: inputs.action == 'delete' && env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        working-directory: worker/sync-node
+        run: |
+          npx wrangler delete --name sync-node-${{ inputs.node_id }} --force
+
+      - name: Health gate (deploy only)
+        if: inputs.action == 'deploy' && env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          URL="https://sync-node-${{ inputs.node_id }}.xup.workers.dev/health"
+          for i in 1 2 3 4 5; do
+            CODE=$(curl -s -o /tmp/node-health.json -w '%{http_code}' --max-time 20 "$URL" || true)
+            echo "Health probe $i/5: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              echo "sync node healthy:"
+              cat /tmp/node-health.json
+              echo "node_healthy=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::sync node ${{ inputs.node_id }} failed health gate"
+          exit 1
+
+      - name: Report skipped (missing secret)
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::warning::CLOUDFLARE_API_TOKEN not configured — sync-node provisioning skipped. Set repo secrets to enable dynamic edge."

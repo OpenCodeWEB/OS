@@ -1,0 +1,10 @@
+# OpenCodeWEB OS — Auto-Spawned Sync Node
+# NOTE: name is overridden at deploy time via `wrangler deploy --name sync-node-<uuid>`
+# (see .github/workflows/deploy-sync-node.yml and dynamic_edge_provisioner.py)
+name = "sync-node"
+main = "index.js"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"

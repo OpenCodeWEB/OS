@@ -18,6 +18,11 @@ service = "opencodewebsag-worker"
 binding = "AIA_CONNECTOR"
 service = "aia"
 
+# Service binding to the Roadmap Edge Worker (roadmap.xup.workers.dev)
+[[services]]
+binding = "ROADMAP_WORKER"
+service = "roadmap"
+
 # Service binding to the Globe Durable Object relay
 [[services]]
 binding = "GLOBE_RELAY"

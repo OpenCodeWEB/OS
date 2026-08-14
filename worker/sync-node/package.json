@@ -1,0 +1,14 @@
+{
+  "name": "opencodeweb-sync-node",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Auto-spawned sync-node replica for OpenCodeWEB OS dynamic edge",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "wrangler deploy --minify",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

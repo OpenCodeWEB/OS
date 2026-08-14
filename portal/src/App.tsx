@@ -18,6 +18,7 @@ const AGPrivacy = lazy(() => import("./pages/AGPrivacy"));
 const AGTerms = lazy(() => import("./pages/AGTerms"));
 const AGLicense = lazy(() => import("./pages/AGLicense"));
 const AGFeatures = lazy(() => import("./pages/AGFeatures"));
+const Roadmap = lazy(() => import("./pages/Roadmap"));
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/ag/terms" element={<AGTerms />} />
         <Route path="/ag/license" element={<AGLicense />} />
         <Route path="/ag/features" element={<AGFeatures />} />
+        <Route path="/roadmap" element={<Roadmap />} />
         <Route path="*" element={<SecurityLanding />} />
       </Route>
     </Routes>

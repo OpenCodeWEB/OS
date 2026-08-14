@@ -1,0 +1,22 @@
+{
+  "track_id": "desktop-gui",
+  "title": "Windows Desktop Hybrid GUI — OpenCodeWEB OS Launcher (WebView2 + Python daemon)",
+  "status": "in_progress",
+  "created": "2026-08-14",
+  "priority": "high",
+  "branding": "ABsUP & ABsUPs",
+  "architecture": "Cross-Platform Hybrid: native UI shell (WebView2) + Python kernel/AiA daemon + local WebSocket (127.0.0.1:8080)",
+  "modules": [
+    "app/desktop/desktop_daemon.py",
+    "app/desktop/launcher.py",
+    "app/desktop/ui/",
+    "core/network/dynamic_edge.py"
+  ],
+  "endpoints": {
+    "local_http": "http://127.0.0.1:8080",
+    "local_ws": "ws://127.0.0.1:8080/ws",
+    "primary_edge": "https://opencodeweb.xup.workers.dev",
+    "roadmap_portal": "https://pocwu.pages.dev/roadmap"
+  },
+  "integration": ["bin/opencode-kernel.py", "core/aia/", "core/roadmap/", "gateway/", "worker/roadmap/"]
+}

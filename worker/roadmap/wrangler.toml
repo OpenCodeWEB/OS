@@ -1,0 +1,22 @@
+# OpenCodeWEB OS — Roadmap Edge Worker (roadmap.xup.workers.dev)
+name = "roadmap"
+main = "roadmap_worker.js"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+
+# KV: single-key roadmap state (quota-aware, one write per batch)
+[[kv_namespaces]]
+binding = "ROADMAP_STATE"
+id = "b3bd1c46104c49389798cb56bcce5df8"
+
+# Durable Object: WebSocket room with CRDT merge + chat history
+[[durable_objects.bindings]]
+name = "ROADMAP_ROOM"
+class_name = "RoadmapRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RoadmapRoom"]
+
+[vars]
+ENVIRONMENT = "production"

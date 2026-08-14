@@ -36,6 +36,7 @@ export interface Env {
   // Service bindings
   AG_WORKER: Fetcher;
   AIA_CONNECTOR: Fetcher;
+  ROADMAP_WORKER: Fetcher;
   GLOBE_RELAY?: Fetcher;
 
   // Environment
@@ -110,6 +111,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     return proxyToWorker(request, env, env.AIA_CONNECTOR, url, "/api/aia");
   }
 
+  // Proxy to Roadmap Edge Worker (state sync + voting + snapshot)
+  // roadmap.xup.workers.dev serves /sync, /roadmap, /vote, /upvote, /chat
+  if (path.startsWith("/api/roadmap/")) {
+    return proxyToWorker(request, env, env.ROADMAP_WORKER, url, "/api/roadmap");
+  }
+
   // Proxy to AG Worker metrics endpoints (no prefix strip — worker owns the full path)
   if (path.startsWith("/api/metrics/")) {
     return proxyToWorker(request, env, env.AG_WORKER, url, "");
@@ -132,6 +139,8 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         "/api/auth/callback",
         "/api/ag/*",
         "/api/ag/repos (POST — create repository)",
+        "/api/aia/*",
+        "/api/roadmap/*",
         "/api/metrics/live (GET — public metrics)",
         "/api/metrics/update (POST — HMAC metrics write)",
         "/api/globe/*",
@@ -175,6 +184,13 @@ async function authenticate(
   // /api/aia/* are open by design (Zero-Constraint ingestion). Reads and
   // writes flow to the aia worker; optional bearer keys are still honored.
   if (path.startsWith("/api/aia/")) {
+    return { authenticated: true };
+  }
+
+  // Public Roadmap edge: the roadmap engine's state sync, the portal's
+  // snapshot/vote/upvote reads and community chat flow through /api/roadmap/*
+  // without credentials (Zero-Constraint community roadmap by design).
+  if (path.startsWith("/api/roadmap/")) {
     return { authenticated: true };
   }
 

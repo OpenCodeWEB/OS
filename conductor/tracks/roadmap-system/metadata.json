@@ -1,0 +1,20 @@
+{
+  "track_id": "roadmap-system",
+  "title": "Autonomous Roadmap System + Dynamic No-Limit Edge Connector",
+  "status": "in_progress",
+  "created": "2026-08-14",
+  "priority": "high",
+  "branding": "ABsUP & ABsUPs",
+  "modules": [
+    "core/roadmap/roadmap_engine.py",
+    "core/roadmap/dynamic_edge_provisioner.py",
+    "worker/roadmap/roadmap_worker.js",
+    "worker/sync-node/"
+  ],
+  "endpoints": {
+    "portal": "https://pocwu.pages.dev/roadmap",
+    "primary_edge": "https://opencodeweb.xup.workers.dev/api/roadmap/*",
+    "dynamic_edge": "https://sync-node-<uuid>.xup.workers.dev"
+  },
+  "integration": ["github.com/OpenCodeWEB/OS", "github.com/OpenCodeWEB/Roadmap", "Cloudflare KV/DO"]
+}
