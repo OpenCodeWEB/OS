@@ -166,17 +166,21 @@ export default function Roadmap() {
   const sendChat = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      const trimmed = text.trim();
-      if (!trimmed) return;
-      const entry: ChatMessage = { id: `local-${Date.now()}`, author, text: trimmed, ts: Date.now() };
-      setMessages((prev) => [...prev, entry]);
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const ws = wsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      // WS is live — the server broadcasts the echo back to us (dedupe via
+      // server id). No optimistic insert, so no duplicates.
+      ws.send(JSON.stringify({ type: "chat", author, text: trimmed, seq: Date.now() }));
       setText("");
-      const ws = wsRef.current;
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "chat", author, text: trimmed, seq: Date.now() }));
-        return;
-      }
-      try {
+      return;
+    }
+    // WS unavailable — optimistic insert, persist via REST.
+    const entry: ChatMessage = { id: `local-${Date.now()}`, author, text: trimmed, ts: Date.now() };
+    setMessages((prev) => [...prev, entry]);
+    setText("");
+    try {
         await fetch(CHAT_REST_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

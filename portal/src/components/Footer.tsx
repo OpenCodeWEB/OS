@@ -37,6 +37,12 @@ function initFooterIntegrityGuard() {
   const checkFooterHealth = () => {
     if (Date.now() - bootedAt < GRACE_PERIOD) return;
 
+    // A collapsed viewport (display:none/0-sized iframe, hidden tab) is NOT
+    // branding tampering — the page isn't being viewed at all. Browsers skip
+    // layout in 0-sized frames, so offsetHeight reads 0 and would otherwise
+    // false-positive a redirect on any legitimate embedder that hides the tab.
+    if (window.innerHeight === 0 || window.innerWidth === 0) return;
+
     const footer = document.getElementById(FOOTER_ID);
 
     // Footer is present AND visible → cancel any pending redirect
@@ -45,8 +51,12 @@ function initFooterIntegrityGuard() {
       const isHidden =
         style.display === "none" ||
         style.opacity === "0" ||
-        style.visibility === "hidden" ||
-        footer.offsetHeight === 0;
+        style.visibility === "hidden";
+      // NOTE: no offsetHeight/rect size checks here — browsers freeze layout
+      // inside 0-sized/display:none iframes (e.g. a host app hiding a tab),
+      // which makes every element read as 0×0 even though the page is intact.
+      // Computed-style checks catch all realistic tampering (display:none,
+      // opacity:0, visibility:hidden, DOM removal) without false-positives.
       if (!isHidden) {
         if (redirectTimer) {
           clearTimeout(redirectTimer);

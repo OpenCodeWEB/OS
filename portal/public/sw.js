@@ -7,7 +7,7 @@
  * @version 2026-07-29
  */
 
-const CACHE_NAME = "opencodeabs-ux-v1";
+const CACHE_NAME = "opencodeabs-ux-v2";
 const STATIC_CACHE = CACHE_NAME + "-static";
 
 // Assets to pre-cache on install (immutable hashed files)
