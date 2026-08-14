@@ -48,13 +48,17 @@
   on Windows 10/11).
 - [x] Auto-starts the daemon (`core/kernel/server.py`) if not already listening.
 
-## Phase 6 — Roadmap edge wiring (finish roadmap-system track) (In progress)
-1. Gateway: `ROADMAP_WORKER` binding (service `roadmap`) + `/api/roadmap/*`
-   REST proxy + `/api/roadmap/ws` WebSocket passthrough (OS + AG copies).
-2. Deploy roadmap worker (`roadmap.xup.workers.dev`) + redeploy gateway.
-3. Portal: `src/pages/Roadmap.tsx` + route `/roadmap` (chat, polls,
-   leaderboard, items) → pocwu.pages.dev.
-4. Update roadmap-system metadata status when verified.
+## Phase 6 — Roadmap edge wiring (finish roadmap-system track) (Done)
+1. [x] Gateway: `ROADMAP_WORKER` binding (service `roadmap`) + `/api/roadmap/*`
+   REST proxy + public auth exemption (OS + AG copies).
+2. [x] Deploy roadmap worker (`roadmap.xup.workers.dev`, version
+   b5b1864f-2064-45cf-a28e-4b0fc304ed3d) + redeploy gateway (c933cef7-...).
+3. [x] Portal: `src/pages/Roadmap.tsx` + route `/roadmap` (chat via WS,
+   polls, leaderboard, items) → deployed to pocwu.pages.dev (chunk live).
+4. [x] Live verify: gateway `/api/roadmap/{health,roadmap,chat,sync}` 200;
+   WS `/ws?room=general` handshake 101, welcome + chat echo + pong; roadmap
+   direct `/health` 200. Initial 401/404/500 were post-deploy propagation
+   artifacts. roadmap-system metadata → Deployed.
 
 ## Phase 7 — Tests & quality (Done)
 - [x] `tests/test_desktop_daemon.py` — REST endpoints (incl. `/health`), WS
@@ -66,7 +70,9 @@
 - [x] ruff + full pytest green (104 passed, 1 skipped).
 
 ## Phase 8 — Live E2E + Ship (In progress)
-1. Launch daemon; verify REST + WS via scripted client.
-2. Launch GUI (pywebview or Edge --app); screenshot verification.
-3. Push OS monorepo + AG mirror (gateway); CI green.
-4. Update tracks.md statuses; summary to user.
+1. [x] Launch daemon; verify REST + WS via scripted client (ABsUP→127.0.0.1
+   fallback confirmed; /health, REST, WS ping round-trip all pass).
+2. [ ] Launch GUI (pywebview or Edge --app); screenshot verification
+   (requires interactive desktop session).
+3. [x] Push OS monorepo (f09ab5d, CI green) + AG mirror (ad34717, CI green).
+4. [x] Update tracks.md statuses (roadmap-system → Deployed).
