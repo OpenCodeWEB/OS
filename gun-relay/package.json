@@ -1,0 +1,14 @@
+{
+  "name": "opencodeweb-gun-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GunDB relay for the OpenCodeWEB OS network — P2P real-time sync backbone (from github.com/OpenCodeWEB/Gun)",
+  "main": "relay.js",
+  "scripts": {
+    "start": "node relay.js",
+    "bridge": "node bridge.js"
+  },
+  "dependencies": {
+    "gun": "github:OpenCodeWEB/Gun"
+  }
+}

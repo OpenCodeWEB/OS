@@ -1,0 +1,41 @@
+{
+  "id": "gun-core",
+  "title": "Gun Core — SEA.share() Zero-Knowledge ECDH Sharing",
+  "status": "in-progress",
+  "repo": "github.com/OpenCodeWEB/Gun",
+  "local_path": "D:\\OpenCodeWEB\\Gun",
+  "author": "ABsUP",
+  "created": "2026-08-16",
+  "milestones": [
+    {
+      "id": "m1",
+      "name": "SEA.share/SEA.open zero-knowledge ECDH sharing",
+      "status": "in-progress"
+    },
+    {
+      "id": "m2",
+      "name": "Time-locked / dead-man's switch encryption (SEA.timelock)",
+      "status": "planned"
+    },
+    {
+      "id": "m3",
+      "name": "RBAC roles node (OS-level)",
+      "status": "planned"
+    },
+    {
+      "id": "m4",
+      "name": "Python<->Gun RPC bridge (OS-level)",
+      "status": "planned"
+    },
+    {
+      "id": "m5",
+      "name": "Offline queue + vector indexing (portal UX)",
+      "status": "planned"
+    },
+    {
+      "id": "m6",
+      "name": "Yjs CRDT adapter (largest, last)",
+      "status": "planned"
+    }
+  ]
+}

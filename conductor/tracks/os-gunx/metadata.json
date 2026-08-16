@@ -1,0 +1,31 @@
+{
+  "id": "os-gunx",
+  "title": "OS + AiA on GunX — serverless GunDB graph integration",
+  "status": "in-progress",
+  "repo": "github.com/OpenCodeWEB/OS",
+  "local_path": "D:\\OpenCodeWEB\\OS",
+  "author": "ABsUP",
+  "created": "2026-08-17",
+  "milestones": [
+    {
+      "id": "m1",
+      "name": "Portal (pocwu.pages.dev) syncs through gunx.pages.dev relay",
+      "status": "in-progress"
+    },
+    {
+      "id": "m2",
+      "name": "Python fleet bridge peers to GunX serverless relay (global graph)",
+      "status": "done"
+    },
+    {
+      "id": "m3",
+      "name": "AiA learn/status events published to the GunX graph",
+      "status": "done"
+    },
+    {
+      "id": "m4",
+      "name": "Deploy + live cross-client verification",
+      "status": "pending"
+    }
+  ]
+}
