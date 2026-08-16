@@ -1,8 +1,18 @@
 /**
  * GET /api/auth/github/callback — handle OAuth callback, create session
+ *
+ * Stateless sessions: the session token is HMAC-signed, so the callback
+ * succeeds even when the KV write budget is exhausted.  KV is used as a
+ * best-effort cache only (fallback for legacy consumers).
  */
 
-import { Env, json, generateToken } from "./_shared";
+import {
+  Env,
+  json,
+  signToken,
+  verifyToken,
+  generateToken,
+} from "./_shared";
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { env, request } = context;
@@ -17,11 +27,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return json({ error: "Missing parameters" }, 400);
   }
 
-  // Verify state (CSRF check)
+  // Verify state (CSRF check) — stateless signature OR KV entry.
+  const signedOk = await verifyToken(state, env, 15 * 60 * 1000);
+  let kvOk = false;
   if (env.SESSIONS_KV) {
-    const stored = await env.SESSIONS_KV.get(`oauth_state:${state}`);
-    if (!stored) return json({ error: "Invalid state" }, 403);
-    await env.SESSIONS_KV.delete(`oauth_state:${state}`);
+    try {
+      const stored = await env.SESSIONS_KV.get(`oauth_state:${state}`);
+      if (stored) {
+        kvOk = true;
+        await env.SESSIONS_KV.delete(`oauth_state:${state}`).catch(() => {});
+      }
+    } catch {
+      // KV unavailable — rely on signature check only.
+    }
+  }
+  if (!signedOk && !kvOk) {
+    return json({ error: "Invalid state" }, 403);
   }
 
   // Exchange code for access token
@@ -80,8 +101,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   // is limited to read:user only — no org, repo, or write permissions.
   // The token is discarded immediately after this callback.
 
-  // Create session token — the GitHub access_token is NOT stored.
-  const sessionToken = generateToken();
   const sessionData = {
     user: {
       login: user.login,
@@ -92,13 +111,21 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     createdAt: new Date().toISOString(),
   };
 
-  // Store session in KV (24h expiry)
+  // Stateless signed session token (works with zero KV writes).
+  const sessionToken =
+    (await signToken({ ...sessionData }, env)) ?? generateToken();
+
+  // Best-effort KV cache for legacy consumers (24h expiry).
   if (env.SESSIONS_KV) {
-    await env.SESSIONS_KV.put(
-      `session:${sessionToken}`,
-      JSON.stringify(sessionData),
-      { expirationTtl: 86400 }
-    );
+    try {
+      await env.SESSIONS_KV.put(
+        `session:${sessionToken}`,
+        JSON.stringify(sessionData),
+        { expirationTtl: 86400 }
+      );
+    } catch {
+      // KV write budget exhausted — stateless token is sufficient.
+    }
   }
 
   // Redirect back to app with session token

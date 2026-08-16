@@ -6,6 +6,8 @@
  * DELETE /api/public/servers/:id — unregister a server (owner only)
  */
 
+import { getUserLogin } from "../_shared";
+
 interface PublicServer {
   id: string;
   name: string;
@@ -22,67 +24,89 @@ interface PublicServer {
   createdAt: string;
 }
 
-// Built-in seed servers — always shown alongside user-registered ones
+// Built-in seed servers — the project's real, verified infrastructure.
+// (Fake entries pointing at portal routes — /s/{org}/{project}, /u/{username},
+// /C, /api/gun/relay — and the decommissioned node-win-01 worker were removed.)
 const SEED_SERVERS: PublicServer[] = [
   {
     id: "gun-relay-1",
     name: "GunDB Main Relay",
     type: "gun-relay",
-    url: "wss://pocwu.pages.dev/api/gun/relay",
+    url: "wss://absup:8765/gun",
     owner: "ABsUP",
     status: "online",
-    region: "Global (Cloudflare Edge)",
-    version: "0.9.x",
-    description: "Primary GunDB WebSocket relay for P2P message forwarding across all connected peers. Routes between browsers, daemons, and edge workers.",
-    tags: ["gun", "websocket", "relay", "p2p"],
+    region: "ABsUP Node (Local OS)",
+    version: "0.2020.1239",
+    description:
+      "Primary GunDB WebSocket relay for P2P real-time sync across peers. Runs from github.com/OpenCodeWEB/Gun (OS/gun-relay/relay.js, TLS). Routes community posts, comments, and presence between browsers and daemons.",
+    tags: ["gun", "websocket", "relay", "p2p", "realtime"],
     uptime: 99.9,
     lastSeen: new Date().toISOString(),
     createdAt: "2026-07-01T00:00:00.000Z",
   },
   {
-    id: "sandbox-preview-1",
-    name: "Sandbox Preview Server",
-    type: "sandbox-preview",
-    url: "https://pocwu.pages.dev/s/{org}/{project}",
-    owner: "ABsUP",
-    status: "online",
-    region: "Global (Cloudflare Edge)",
-    version: "1.0.0-EA",
-    description: "Multi-tenant sandbox preview environment. Each org/project gets an isolated runtime with auto-backup, PREVIEW mode, and one-click publish to production.",
-    tags: ["sandbox", "preview", "isolated"],
-    uptime: 99.9,
-    lastSeen: new Date().toISOString(),
-    createdAt: "2026-07-01T00:00:00.000Z",
-  },
-  {
-    id: "daemon-registry-1",
-    name: "Daemon Registry",
-    type: "daemon-node",
-    url: "https://pocwu.pages.dev/u/{username}",
-    owner: "ABsUP",
-    status: "online",
-    region: "Global (Cloudflare Edge)",
-    version: "1.0.0-EA",
-    description: "OS-level background daemon registry. Tracks all registered systemd/launchd/Task Scheduler daemon nodes with real-time heartbeat and telemetry.",
-    tags: ["daemon", "background", "systemd", "launchd"],
-    uptime: 99.8,
-    lastSeen: new Date().toISOString(),
-    createdAt: "2026-07-10T00:00:00.000Z",
-  },
-  {
-    id: "community-api-1",
-    name: "Community Hub API",
+    id: "edge-gateway-1",
+    name: "OpenCodeWEB Edge Gateway",
     type: "custom",
-    url: "https://pocwu.pages.dev/C",
+    url: "https://opencodeweb.xup.workers.dev",
+    owner: "ABsUP",
+    status: "online",
+    region: "Global (Cloudflare Edge)",
+    version: "2.0.0",
+    description:
+      "Primary API gateway for the OpenCodeWEB OS network. Secure single-ingress routing to roadmap, AiA, and portal services. Auth-protected — 401 without valid credentials.",
+    tags: ["gateway", "api", "secure", "ingress"],
+    uptime: 99.9,
+    lastSeen: new Date().toISOString(),
+    createdAt: "2026-07-01T00:00:00.000Z",
+  },
+  {
+    id: "roadmap-edge-1",
+    name: "Roadmap Edge Worker",
+    type: "custom",
+    url: "https://roadmap.xup.workers.dev",
+    owner: "ABsUP",
+    status: "online",
+    region: "Global (Cloudflare Edge)",
+    version: "1.0.0",
+    description:
+      "Durable roadmap service backed by Cloudflare Durable Objects. Real-time sync, voting, upvotes, and chat over WebSocket. Endpoints: /health, /ws, /roadmap, /sync, /vote, /upvote, /chat.",
+    tags: ["roadmap", "worker", "durable-object", "websocket", "sync"],
+    uptime: 99.9,
+    lastSeen: new Date().toISOString(),
+    createdAt: "2026-07-01T00:00:00.000Z",
+  },
+  {
+    id: "aia-connector-1",
+    name: "AiA Connector Worker",
+    type: "custom",
+    url: "https://aia.xup.workers.dev",
+    owner: "ABsUP",
+    status: "online",
+    region: "Global (Cloudflare Edge)",
+    version: "1.1.0",
+    description:
+      "Edge connector for the AiA (Automated Intelligence Assistant) service. Lessons sync, research orchestration, and health checks. Endpoints: /health, /sync, /lessons, /lessons/:id, /research.",
+    tags: ["aia", "ai", "connector", "lessons", "research"],
+    uptime: 99.9,
+    lastSeen: new Date().toISOString(),
+    createdAt: "2026-07-01T00:00:00.000Z",
+  },
+  {
+    id: "portal-1",
+    name: "OpenCodeWEB Portal",
+    type: "custom",
+    url: "https://pocwu.pages.dev",
     owner: "ABsUP",
     status: "online",
     region: "Global (Cloudflare Edge)",
     version: "1.0.0-EA",
-    description: "Community discussion API with GunDB real-time sync. Posts and comments are replicated across all connected peers via the GunDB graph network.",
-    tags: ["community", "api", "gun", "real-time"],
+    description:
+      "Cloudflare Pages frontend hub for the OS network — AG dashboard, feature flags (/F), servers directory (/S), community (/C), sandbox previews (/s/...), and GitHub auth.",
+    tags: ["portal", "pages", "dashboard", "ui", "cloudflare"],
     uptime: 99.9,
     lastSeen: new Date().toISOString(),
-    createdAt: "2026-07-15T00:00:00.000Z",
+    createdAt: "2026-07-01T00:00:00.000Z",
   },
 ];
 
@@ -100,12 +124,7 @@ function json(data: unknown, status = 200): Response {
 
 // Parse auth header
 async function getUser(request: Request, kv: KVNamespace): Promise<string | null> {
-  const auth = request.headers.get("Authorization") ?? "";
-  const token = auth.replace("Bearer ", "");
-  if (!token) return null;
-  const session = await kv.get(`session:${token}`);
-  if (!session) return null;
-  return (JSON.parse(session).user?.login as string) ?? null;
+  return getUserLogin(request, { SESSIONS_KV: kv });
 }
 
 // ─── GET /api/public/servers — list all public servers ──────

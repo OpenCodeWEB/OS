@@ -13,12 +13,16 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import {
   subscribePosts,
-  publishPost,
-  unpublishPost,
-  publishComment,
+  getGun,
   type GunPost,
   type GunComment,
 } from "../lib/gun";
+import { offlineQueue } from "../lib/offlineQueue";
+import { ensureQueueConfigured } from "../lib/queueRunners";
+
+// Gun publishes are routed through the durable offline queue:
+// online → executed immediately; offline → persisted and retried with backoff.
+ensureQueueConfigured();
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -84,9 +88,23 @@ interface UseGunSyncReturn {
 
 export function useGunSync(options?: UseGunSyncOptions): UseGunSyncReturn {
   const [initialized] = useState(true);
-  const peerCount = 0;
+  const [peerCount, setPeerCount] = useState(0);
   const gunPostsRef = useRef<Map<string, GunPost>>(new Map());
   const { onGunUpdate } = options ?? {};
+
+  // Track live relay connections (peers) — updates every 5 s
+  useEffect(() => {
+    const update = () => {
+      const gun = getGun();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const peers = (gun as any)._?.peers;
+      const count = peers ? Object.keys(peers).length : 0;
+      setPeerCount((prev) => (prev === count ? prev : count));
+    };
+    update();
+    const timer = setInterval(update, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Subscribe to GunDB posts on mount
   useEffect(() => {
@@ -162,15 +180,15 @@ export function useGunSync(options?: UseGunSyncOptions): UseGunSyncReturn {
       updatedAt: post.updatedAt,
       _source: "gun",
     };
-    publishPost(gp);
+    void offlineQueue.enqueue("gun.post", gp);
   }, []);
 
   const publishDeleted = useCallback((postId: string) => {
-    unpublishPost(postId);
+    void offlineQueue.enqueue("gun.unpost", postId);
   }, []);
 
   const publishNewComment = useCallback((comment: GunComment) => {
-    publishComment(comment);
+    void offlineQueue.enqueue("gun.comment", comment);
   }, []);
 
   return {

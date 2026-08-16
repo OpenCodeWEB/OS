@@ -6,6 +6,8 @@
  * `index.ts` in the folder.
  */
 
+import { getUserLogin } from "../_shared";
+
 interface Sandbox {
   id: string;
   name: string;
@@ -35,15 +37,7 @@ async function getUser(
   request: Request,
   kv: KVNamespace,
 ): Promise<string | null> {
-  const auth = request.headers.get("Authorization") ?? "";
-  const token = auth.replace("Bearer ", "");
-  if (!token) return null;
-
-  const session = await kv.get(`session:${token}`);
-  if (!session) return null;
-
-  const data = JSON.parse(session);
-  return data.user?.login ?? null;
+  return getUserLogin(request, { SESSIONS_KV: kv });
 }
 
 // ─── POST /api/sandbox — create new sandbox ──────────────────

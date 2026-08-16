@@ -10,19 +10,20 @@
  */
 
 import { Env, json } from "./_shared";
+import { getSessionData } from "../auth/github/_shared";
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { env, request } = context;
 
-  // ── Session auth ───────────────────────────────────────────────── //
+  // ── Session auth (stateless-aware) ──────────────────────────────── //
   const auth = request.headers.get("Authorization") ?? "";
   const sessionToken = auth.replace("Bearer ", "");
-  if (!sessionToken || !env.SESSIONS_KV) {
+  if (!sessionToken) {
     return json({ error: "Authentication required" }, 401);
   }
 
-  const sessionRaw = await env.SESSIONS_KV.get(`session:${sessionToken}`);
-  if (!sessionRaw) {
+  const session = await getSessionData(sessionToken, env);
+  if (!session) {
     return json({ error: "Invalid or expired session" }, 401);
   }
 

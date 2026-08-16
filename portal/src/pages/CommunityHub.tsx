@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useGunSync, type GunPost } from "../hooks/useGunSync";
+import { useOfflineQueue } from "../hooks/useOfflineQueue";
+import { useLocalSearch } from "../hooks/useLocalSearch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -761,6 +763,24 @@ export default function CommunityHub() {
     },
   });
 
+  // Durable offline write queue + on-device keyword search index.
+  const { pending: queuePending, online: queueOnline, state: queueState } =
+    useOfflineQueue();
+  const localSearch = useLocalSearch();
+  const {
+    query: searchQuery,
+    setQuery: setSearchQuery,
+    results: searchResults,
+    searching: searchSearching,
+    indexed: indexedCount,
+    indexItems,
+  } = localSearch;
+
+  // Keep the local keyword index in sync with everything displayed.
+  useEffect(() => {
+    if (!loading) indexItems(items);
+  }, [items, loading, indexItems]);
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -809,10 +829,15 @@ export default function CommunityHub() {
     fetchAll();
   }, [fetchAll]);
 
-  // Derive categories
+  // Derive categories. In search mode the local keyword index drives the list.
   const availableCategories = ["All", ...new Set(items.map((i) => i.category))];
-  const filtered =
-    activeCategory === "All"
+  const searchActive = searchQuery.trim().length > 0;
+  const searchHitIds = new Set(
+    searchResults.map((r) => r.soul.replace(/^item_/, "")),
+  );
+  const filtered = searchActive
+    ? items.filter((i) => searchHitIds.has(i.id))
+    : activeCategory === "All"
       ? items
       : items.filter((i) => i.category === activeCategory);
 
@@ -920,6 +945,18 @@ export default function CommunityHub() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Live
             </span>
+            {!queueOnline && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                Offline{queuePending > 0 ? ` · ${queuePending} queued` : ""}
+              </span>
+            )}
+            {queueOnline && queuePending > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-600/15 px-2 py-0.5 text-[10px] font-medium text-brand-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-400 animate-pulse" />
+                {queueState === "syncing" ? "Syncing…" : `${queuePending} queued`}
+              </span>
+            )}
           </div>
         </div>
         {user && (
@@ -945,8 +982,54 @@ export default function CommunityHub() {
         )}
       </div>
 
-      {/* Category filters */}
+      {/* Local keyword search (on-device, no network) */}
       {!loading && !error && items.length > 0 && (
+        <div className="mb-4">
+          <div className="relative">
+            <svg
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35m1.35-5.15a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+              />
+            </svg>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${indexedCount} locally indexed discussions…`}
+              className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-9 text-sm text-white placeholder-white/30 outline-none transition-colors focus:border-brand-500/50 focus:bg-white/[0.07]"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                aria-label="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-white/40 transition-colors hover:text-white/70"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {searchActive && (
+            <p className="mt-2 text-xs text-white/40">
+              {searchSearching
+                ? "Searching…"
+                : `${filtered.length} result${filtered.length === 1 ? "" : "s"} for “${searchQuery.trim()}”`}
+              {!searchSearching &&
+                filtered.length === 0 &&
+                " — nothing matched locally, try a broader term."}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Category filters */}
+      {!loading && !error && items.length > 0 && !searchActive && (
         <div className="mb-6 flex flex-wrap gap-2">
           {availableCategories.map((cat) => {
             const count =

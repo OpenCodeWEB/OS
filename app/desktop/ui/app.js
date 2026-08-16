@@ -4,9 +4,9 @@
    WebView2 shell. Maintainers: ABsUP & ABsUPs. */
 
 "use strict";
-
 const API = "";
-const WS_URL = `ws://${location.host}/ws/aia`;  // real-time AiA streaming channel
+
+const WS_URL = `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/aia`;  // real-time AiA streaming channel
 
 /* ── Utilities ─────────────────────────────────────────── */
 function $(id) { return document.getElementById(id); }
@@ -135,6 +135,7 @@ function renderStatus(s) {
 
   // Daemon
   $("dm-uptime").textContent = fmtUptime(dm.uptime_s);
+  if (dm.local_endpoint) $("dm-endpoint").textContent = dm.local_endpoint;
   if (dm.zero_constraint) $("dm-policy-text").textContent = dm.zero_constraint;
 }
 

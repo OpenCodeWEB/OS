@@ -6,6 +6,8 @@
  * POST /api/community/hubs — register a new community hub (auth required)
  */
 
+import { getUserLogin } from "../_shared";
+
 interface CommunityHub {
   id: string;
   owner: string;
@@ -112,12 +114,7 @@ const SEED_HUBS: CommunityHub[] = [
 ];
 
 async function getUser(request: Request, kv: KVNamespace): Promise<string | null> {
-  const auth = request.headers.get("Authorization") ?? "";
-  const token = auth.replace("Bearer ", "");
-  if (!token) return null;
-  const session = await kv.get(`session:${token}`);
-  if (!session) return null;
-  return (JSON.parse(session).user?.login as string) ?? null;
+  return getUserLogin(request, { SESSIONS_KV: kv });
 }
 
 // ─── Sorting comparator factories ──────────────────────────

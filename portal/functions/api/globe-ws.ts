@@ -16,9 +16,13 @@
  *   https://github.com/cloudflare/templates/tree/main/multiplayer-globe-template
  */
 
+import { getSessionData } from "./auth/github/_shared";
+
 interface Env {
   GLOBE_DO: Fetcher; // service binding to pocwu-globe-relay
   SESSIONS_KV?: KVNamespace;
+  JWT_SECRET?: string;
+  GITHUB_CLIENT_SECRET?: string;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -47,19 +51,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   let userLogin = "";
 
-  if (token && env.SESSIONS_KV) {
+  // Stateless-aware session lookup (works with or without KV).
+  if (token) {
     try {
-      const raw = await env.SESSIONS_KV.get(`session:${token}`);
-      if (raw) {
-        const session = JSON.parse(raw) as {
-          user?: { login: string; name: string; avatar: string };
-        };
-        if (session.user) {
-          headers["X-User-Login"] = session.user.login;
-          headers["X-User-Name"] = session.user.name;
-          headers["X-User-Avatar"] = session.user.avatar;
-          userLogin = session.user.login;
-        }
+      const session = await getSessionData(token, env);
+      if (session?.user) {
+        headers["X-User-Login"] = session.user.login;
+        headers["X-User-Name"] = session.user.name;
+        headers["X-User-Avatar"] = session.user.avatar;
+        userLogin = session.user.login;
       }
     } catch {
       // Ignore — connect anonymously

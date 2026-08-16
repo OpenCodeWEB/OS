@@ -2,13 +2,17 @@
  * GunDB client singleton — P2P graph database with IndexedDB persistence.
  *
  * Architecture:
- *   Browser Tab A  ←→  [IndexedDB / SharedWorker]  ←→  Browser Tab B
- *        ↕                                          ↕
- *   Cloudflare REST API                    Cloudflare REST API
+ *   Browser Tab A  ←─wss─→  [Serverless Relay wss://gunx.pages.dev/gun]  ←─wss─→  Browser Tab B
+ *        ↕                                  ↕ (Cloudflare Workers + Durable Objects)
+ *   IndexedDB (offline-first)     [LAN fallback wss://absup:8765/gun]
  *
- * Future: WebSocket relay for cross-user real-time sync.
+ * Primary relay: gunx.pages.dev — serverless GunDB peer (no relay server needed),
+ * deployed from Gun-serverless/ (Workers Durable Object + Pages Functions).
+ * LAN fallback: OpenCodeWEB OS local relay (OS/gun-relay/relay.js).
+ * SEA (Security, Encryption, Authorization) is loaded for E2EE user data.
  */
 import Gun from "gun";
+import "gun/sea";
 
 // Re-export Gun for convenience
 export { Gun };
@@ -48,18 +52,43 @@ export interface GunComment {
 let _gun: ReturnType<typeof Gun> | null = null;
 
 /**
+ * Relay endpoints for cross-user real-time sync.
+ * - GUN_RELAY_URLS env override (comma-separated) for custom deployments
+ * - Default: serverless gunx.pages.dev relay (no relay server needed).
+ *   The local OS relay is NOT listed here on purpose: gun clients ask peers
+ *   round-robin and stop at the first answer, so a stale LAN relay would
+ *   shadow the authoritative serverless graph.
+ */
+const RELAY_URLS = (
+  import.meta.env.VITE_GUN_RELAY_URLS ||
+  "https://gunx.pages.dev/gun"
+)
+  .split(",")
+  .map((s: string) => s.trim())
+  .filter(Boolean);
+
+/**
  * Get or create the GunDB singleton.
- * Data is persisted to IndexedDB automatically.
+ * Data is persisted to IndexedDB automatically and synced across
+ * peers through the configured relay(s).
  */
 export function getGun(): ReturnType<typeof Gun> {
   if (!_gun) {
     _gun = Gun({
       localStorage: true,
-      peers: [],
+      peers: RELAY_URLS,
       radisk: true,
     });
+    startSyncPolling();
   }
   return _gun;
+}
+
+/**
+ * List configured relay URLs.
+ */
+export function getRelayUrls(): string[] {
+  return [...RELAY_URLS];
 }
 
 /**
@@ -140,4 +169,65 @@ export function getPeerCount(): number {
   const peers = (gun as any)._?.peers;
   if (!peers) return 0;
   return Object.keys(peers).length;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Peer refresh polling                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Force-refresh the given souls from connected peers.
+ *
+ * Why this exists: gun clients only ask peers about souls they already have
+ * locally at peer-connect time ("hi" handler -> per-key hash-check GETs).
+ * In an SPA the gun singleton connects at boot, but route-level subscriptions
+ * (e.g. the community page) start later — at that point the peer is never
+ * asked, so remote writes made while this tab was offline or unsubscribed
+ * never arrive. A plain soul GET makes the peer reply with the full fresh
+ * node (verified against the gunx serverless relay: `{get:{"#":soul}}` ->
+ * complete node reply, which gun merges and re-emits to live `.on()`s).
+ *
+ * The message is injected through the root `out` pipeline (the canonical
+ * wire path — identical to what mesh.say does internally), so the wire
+ * layer handles framing, and every connected peer is asked.
+ */
+export function refreshSouls(souls: string[]): void {
+  const gun = getGun();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const root = (gun as any)._;
+  if (!root || !root.mesh || !root.opt || !root.opt.peers) return;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const peers = root.opt.peers as Record<string, any>;
+  const ids = Object.keys(peers);
+  if (!ids.length) return;
+  for (const soul of souls) {
+    const msg = { get: { "#": soul } };
+    for (const id of ids) {
+      const peer = peers[id];
+      if (!peer || !peer.wire) continue;
+      root.on("out", msg, peer);
+    }
+  }
+}
+
+const REFRESH_INTERVAL_MS = 20000;
+const SYNC_SOULS = [POSTS_KEY, COMMENTS_KEY];
+
+/**
+ * Start periodic peer refresh polling (idempotent).
+ * Runs while the tab is visible; also refreshes immediately when the tab
+ * becomes visible again so returning users see fresh remote data.
+ */
+function startSyncPolling(): void {
+  const gun = getGun();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const g = gun as any;
+  if (g.__syncPoll) return;
+  g.__syncPoll = setInterval(() => {
+    if (document.visibilityState === "hidden") return;
+    refreshSouls(SYNC_SOULS);
+  }, REFRESH_INTERVAL_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") refreshSouls(SYNC_SOULS);
+  });
 }

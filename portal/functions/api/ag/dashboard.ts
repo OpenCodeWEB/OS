@@ -5,27 +5,17 @@
  */
 
 import { Env, json } from "./_shared";
+import { getSessionData } from "../auth/github/_shared";
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { env, request } = context;
   const kv = env.AG_TOKENS_KV;
 
-  // Get session from auth header
+  // Get session from auth header (stateless-aware)
   const auth = request.headers.get("Authorization") ?? "";
   const sessionToken = auth.replace("Bearer ", "");
-  let userLogin: string | null = null;
-
-  if (sessionToken && env.SESSIONS_KV) {
-    const sessionRaw = await env.SESSIONS_KV.get(`session:${sessionToken}`);
-    if (sessionRaw) {
-      try {
-        const session = JSON.parse(sessionRaw) as { user?: { login?: string } };
-        userLogin = session.user?.login ?? null;
-      } catch {
-        // ignore
-      }
-    }
-  }
+  const session = await getSessionData(sessionToken, env);
+  const userLogin = session?.user?.login ?? null;
 
   // Try to proxy worker health check
   let workerStatus = "unknown";

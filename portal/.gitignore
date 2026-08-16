@@ -88,3 +88,6 @@ cloudflare-wnp-snapshot.txt
 OpenCodeWEBsPRD/
 **/OpenCodeWEBsPRD/
 **/PRD*.md
+
+# Local secrets (never commit)
+.dev.vars

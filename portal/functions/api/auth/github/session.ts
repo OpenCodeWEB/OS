@@ -1,8 +1,11 @@
 /**
  * GET /api/auth/github/session — verify current session token
+ *
+ * Accepts stateless HMAC-signed tokens (primary) and KV-backed sessions
+ * (legacy).  KV failures never break verification.
  */
 
-import { Env, json } from "./_shared";
+import { Env, json, getSessionData } from "./_shared";
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { env, request } = context;
@@ -10,14 +13,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const auth = request.headers.get("Authorization") ?? "";
   const token = auth.replace("Bearer ", "");
 
-  if (!token || !env.SESSIONS_KV) {
-    return json({ authenticated: false }, 401);
-  }
-
-  const session = await env.SESSIONS_KV.get(`session:${token}`);
+  const session = await getSessionData(token, env);
   if (!session) {
     return json({ authenticated: false }, 401);
   }
 
-  return json({ authenticated: true, session: JSON.parse(session) });
+  return json({ authenticated: true, session });
 };
