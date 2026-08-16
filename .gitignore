@@ -43,3 +43,14 @@ run/
 
 # Wrangler local cache (never commit)
 .wrangler/
+
+# Local TLS keys (never commit)
+certs/*.key
+certs/*.csr
+certs/*.srl
+# Runtime state (gun file store + logs) — never commit
+gun-relay/gun-bridge-data.json/
+gun-relay/gun-data.json/
+gun-relay/radata/
+gun-relay/_f*.json/
+gun-relay/*.log
