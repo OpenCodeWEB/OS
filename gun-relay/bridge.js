@@ -109,6 +109,39 @@ setInterval(() => {
 // (Gun.log.once / Gun.log.off) and chain reads (val/map without callbacks)
 // crash with TypeError when they are missing.
 
+/* ── OS presence in the GunX user registry ──────────────────────────── */
+// The bridge is the always-on presence of the machine running OpenCodeWEB
+// OS. It publishes (and refreshes) an entry under os/users/<login> so the
+// public Users directory (/U) shows this machine's owner as ONLINE in the
+// global GunX network even when no browser is open. Contract is flat —
+// GitHub profile data only, no secrets, no session material.
+const OS_USER = {
+  login: "ABsUP",
+  name: "ABsUP",
+  avatar: "https://github.com/ABsUP.png",
+  id: 0, // GitHub numeric id is not exposed to the bridge; profile still resolves
+};
+const OS_JOINED_AT = "2026-08-17T00:00:00.000Z"; // first OS presence in GunX
+let osPresenceBooted = false;
+function publishOsPresence() {
+  const node = gun.get("os/users").get(OS_USER.login);
+  if (!osPresenceBooted) {
+    osPresenceBooted = true;
+    node.put({
+      login: OS_USER.login,
+      name: OS_USER.name,
+      avatar: OS_USER.avatar,
+      id: OS_USER.id,
+      joinedAt: OS_JOINED_AT,
+      lastSeen: Date.now(),
+    });
+  } else {
+    node.get("lastSeen").put(Date.now());
+  }
+}
+setInterval(publishOsPresence, 45_000);
+publishOsPresence(); // publish immediately on boot
+
 /* ── Change journal (cursor-based watch feed) ─────────────────────── */
 // Watched souls accumulate { soul, key, value, state } entries here so
 // /watch?soul=..&since=.. can return exactly what changed since a cursor.
