@@ -24,12 +24,12 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 DEFAULT_AIA_LIB = Path(os.environ.get("AIA_LIB_DIR", r"D:\OpenCodeWEB\AiA"))
 
 
-def _load_engine(lib_dir: str | Path | None = None, executors: Optional[list[Any]] = None) -> Any:
+def _load_engine(lib_dir: str | Path | None = None, executors: list[Any] | None = None) -> Any:
     lib = Path(lib_dir or DEFAULT_AIA_LIB)
     if lib.joinpath("aia_core_engine.py").exists():
         sys.path.insert(0, str(lib))
@@ -41,13 +41,13 @@ def _load_engine(lib_dir: str | Path | None = None, executors: Optional[list[Any
 class MasterEngineAdapter:
     """Thin OS-side wrapper around the AiA master engine."""
 
-    def __init__(self, lib_dir: Optional[str | Path] = None, bridge: Any = None, executors: Optional[list[Any]] = None) -> None:
+    def __init__(self, lib_dir: str | Path | None = None, bridge: Any = None, executors: list[Any] | None = None) -> None:
         self.lib_dir = Path(lib_dir or DEFAULT_AIA_LIB)
         self.engine = _load_engine(self.lib_dir, executors=executors)
         self.bridge = bridge  # optional GunBridge instance (lazy)
 
     # ── core pipeline ─────────────────────────────────────────────────────
-    def process_task(self, prompt: str, context: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def process_task(self, prompt: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         result = self.engine.process_task(prompt, context)
         self.publish_brain()
         return result

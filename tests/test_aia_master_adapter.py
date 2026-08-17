@@ -1,13 +1,22 @@
-"""Tests for the OS-side AiA master engine adapter (GunX mirror mocked)."""
+"""Tests for the OS-side AiA master engine adapter (GunX mirror mocked).
+
+Skips when the AiA repo is not present locally — the engine itself is tested
+in github.com/OpenCodeWEB/AiA's own pipeline.
+"""
 
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from core.aia.aia_master_adapter import MasterEngineAdapter  # noqa: E402
+import pytest  # noqa: E402
 
-AIALIB = Path(__file__).resolve().parents[2]
+from core.aia.aia_master_adapter import DEFAULT_AIA_LIB, MasterEngineAdapter  # noqa: E402
+
+AIALIB = Path(DEFAULT_AIA_LIB)
+
+if not AIALIB.joinpath("aia_core_engine.py").exists():
+    pytest.skip("AiA lib not found (clone github.com/OpenCodeWEB/AiA)", allow_module_level=True)
 
 
 def _mock_executors():
