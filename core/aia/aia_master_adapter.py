@@ -99,5 +99,19 @@ class MasterEngineAdapter:
         return result
 
 
-# Default instance for OS services (lazy bridge)
-master_engine = MasterEngineAdapter()
+# Default instance for OS services — lazily created so that merely importing
+# this module never requires the AiA lib to be present (CI-safe).
+_master_engine: MasterEngineAdapter | None = None
+
+
+def get_master_engine() -> MasterEngineAdapter:
+    global _master_engine
+    if _master_engine is None:
+        _master_engine = MasterEngineAdapter()
+    return _master_engine
+
+
+def __getattr__(name: str) -> Any:
+    if name == "master_engine":
+        return get_master_engine()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
