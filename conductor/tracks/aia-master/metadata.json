@@ -1,7 +1,7 @@
 {
   "id": "aia-master",
   "title": "AiA Master Engine — self-evolving supervisor intelligence (github.com/OpenCodeWEB/AiA)",
-  "status": "planning",
+  "status": "in_progress",
   "repo": "github.com/OpenCodeWEB/AiA",
   "local_path": "D:\\OpenCodeWEB\\AiA",
   "author": "ABsUP",
@@ -10,42 +10,42 @@
     {
       "id": "m1",
       "name": "AiAMasterEngine core: process_task pipeline (evaluate → native | delegate → observe → learn)",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m2",
       "name": "Unlimited-context vector memory (rolling window + hierarchical compression, pure-Python embeddings)",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m3",
       "name": "Continuous learning loop: user patterns + model observation + GitHub OSS sync",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m4",
       "name": "Gemini connector via Google account session (zero API key) — gemini-cli OAuth bridge",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m5",
       "name": "OS integration: AiA consumed by OpenCodeWEB OS (core/aia adapter), GunX brain persistence",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m6",
       "name": "Marketplace power-backend readiness: packaged runtime + health API for marketplace apps",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m7",
       "name": "Federated swarm client: privacy-safe anonymization, worker sync push, OTA patch apply",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "m8",
       "name": "Central brain worker (aia-brain.opencode.workers.dev): validation, aggregation, /v1/patch feed",
-      "status": "pending"
+      "status": "blocked"
     }
   ]
 }
