@@ -61,7 +61,11 @@ if (useTls) {
 /* ── GunDB relay ──────────────────────────────────────────────────── */
 const gun = Gun({
   web: server,
-  file: dataFile,
+  // file: false — gun's local file store (v0.2020.1239 on Node 24) breaks
+  // ALL peer connections (verified: mesh.peers stays empty even for ws://
+  // local peers). Durability lives in the serverless relay (Cloudflare DO
+  // SQLite); this LAN relay is a live memory hub that converges with it.
+  file: false,
   // Relay-to-relay mesh: connect to the serverless gunx relay so the LAN
   // relay stays converged with gunx.pages.dev (Cloudflare DO storage).
   // axe/multicast are disabled: LAN peer discovery interferes with the

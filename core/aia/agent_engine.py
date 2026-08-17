@@ -274,7 +274,9 @@ class AgentEngine:
         if not token:
             return
         url = os.environ.get("GUN_BRIDGE_URL", "https://absup:8766").rstrip("/")
-        payload = {"kind": kind, "ts": time.time(), **data}
+        # Flat payload (GunX graph rule): soul + key + flat value object.
+        payload = {"soul": "os/aia/events", "key": f"{kind}-{int(time.time() * 1000)}",
+                   "value": {"kind": kind, "ts": time.time(), **data}}
         req = urllib.request.Request(
             f"{url}/put",
             data=json.dumps(payload).encode("utf-8"),

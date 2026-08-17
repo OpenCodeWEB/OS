@@ -88,10 +88,26 @@ if (useTls) {
 // client's connection to remote peers (verified empirically in relay.js).
 const gun = Gun({
   peers: [RELAY],
-  file: dataFile,
+  // file: false — gun's local file store (v0.2020.1239 on Node 24) breaks
+  // ALL peer connections (verified: mesh.peers stays empty even for ws://
+  // local peers). Durability comes from the serverless relay by design; the
+  // in-memory change journal covers /watch cursors.
+  file: false,
   axe: false,
   multicast: false,
 });
+
+/* ── Peer keepalive ─────────────────────────────────────────────────── */
+// The serverless relay (CF Durable Object) drops idle WebSocket links; a
+// dead link silently buffers writes in the local store and they never reach
+// the global graph. Exercise the peer connection every 45s with a tiny write
+// so gun's retry logic detects a dropped link and reconnects promptly.
+setInterval(() => {
+  gun.get("os/_keepalive").put({ node: "opencodeweb-bridge", t: Date.now() });
+}, 45_000);
+// NOTE: do NOT reassign Gun.log — gun stores internal dedup loggers on it
+// (Gun.log.once / Gun.log.off) and chain reads (val/map without callbacks)
+// crash with TypeError when they are missing.
 
 /* ── Change journal (cursor-based watch feed) ─────────────────────── */
 // Watched souls accumulate { soul, key, value, state } entries here so
@@ -220,6 +236,31 @@ server.on("request", async (req, res) => {
       gun: Gun.version,
       relay: RELAY,
       uptime_s: Math.round((Date.now() - START) / 1000),
+    });
+  }
+
+  if (route === "/peers") {
+    // gun stores live peer objects under opt.peers (mesh.peers stays empty
+    // on this build) — each entry carries its open WebSocket (`wire`).
+    const root = gun._.root || {};
+    const opt = root.opt || {};
+    const optPeers = opt.peers || {};
+    const meshPeers = (root.mesh && root.mesh.peers) || {};
+    const all = Object.assign({}, meshPeers, optPeers);
+    const mesh = opt.mesh || root.mesh || {};
+    return send(res, 200, {
+      ok: true,
+      mesh: {
+        wire: typeof mesh.wire,
+        say: typeof mesh.say,
+      },
+      peers: Object.keys(all).map((k) => ({
+        url: k,
+        wire: !!(all[k].wire && all[k].wire.readyState === 1),
+        readyState: all[k].wire ? all[k].wire.readyState : null,
+        tries: all[k].tries || 0,
+        retry: all[k].retry || 0,
+      })),
     });
   }
 

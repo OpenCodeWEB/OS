@@ -54,3 +54,7 @@ gun-relay/gun-data.json/
 gun-relay/radata/
 gun-relay/_f*.json/
 gun-relay/*.log
+
+gun-relay/radata/
+tmp-store-data.json/
+tmp-store2-data.json/
