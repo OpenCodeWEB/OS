@@ -1,7 +1,7 @@
 ﻿# =====================================================================
 # OpenCodeWEB OS â€” Self-Healing CI/CD Pipeline (Master Monorepo)
 # ---------------------------------------------------------------------
-# Runs on every push to `main` (and on demand):
+# Runs on every push to `Dev` (and on demand):
 #   1. Secret leak prevention scan
 #   2. Lint (ruff) + tests (pytest) for the AiA engine
 #   3. Build portal (Vite) and deploy to Cloudflare Pages (pocwu.pages.dev)
@@ -16,7 +16,7 @@ name: OpenCodeWEB OS Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [Dev]
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *" # periodic health self-check every 6 hours
