@@ -1,7 +1,9 @@
-# OpenCodeWEB OS — Master Monorepo
+﻿# OpenCodeWEB OS â€” Master Monorepo
 
 > Self-sovereign, unrestricted, perpetual, universal AI-native operating system.
 > All OpenCodeWEB OS code lives here. Maintained by **ABsUP & ABsUPs**.
+![CI](https://github.com/OpenCodeWEB/OS/actions/workflows/opencodeweb-pipeline.yml/badge.svg)
+
 
 ## Immutable Zero-Constraint Policy
 
@@ -15,14 +17,14 @@ time by the `UnrestrictedRefactorer`.
 
 | Path | Component |
 | :--- | :--- |
-| `bin/` | OS kernel bootstrapper (`opencode-kernel.py`) — hardware probe, IPC server, AiA daemon, CLI |
-| `core/aia/` | **AiA Master Intelligence Engine** — context window, agent core, learning loop, memory manager, unrestricted refactorer |
+| `bin/` | OS kernel bootstrapper (`opencode-kernel.py`) â€” hardware probe, IPC server, AiA daemon, CLI |
+| `core/aia/` | **AiA Master Intelligence Engine** â€” context window, agent core, learning loop, memory manager, unrestricted refactorer |
 | `core/ipc/` | Zero-copy shared-memory bus (`SharedMemoryBus`, <3ms) |
 | `core/runtime/` | On-demand module loader (`OnDemandLoader`, StorageGuard janitor) |
-| `gateway/` | Edge gateway worker — `opencodeweb.xup.workers.dev` (auth, webhook HMAC, OAuth, proxies) |
-| `worker/` | AG webhook worker — GitHub App automation, KV-backed bot tokens |
+| `gateway/` | Edge gateway worker â€” `opencodeweb.xup.workers.dev` (auth, webhook HMAC, OAuth, proxies) |
+| `worker/` | AG webhook worker â€” GitHub App automation, KV-backed bot tokens |
 | `servers/` | Servers gateway worker |
-| `portal/` | Web portal (Vite + React) — deployed to `pocwu.pages.dev` |
+| `portal/` | Web portal (Vite + React) â€” deployed to `pocwu.pages.dev` |
 | `lib/modules/` | On-demand module store |
 | `tests/` | Python test suite (ruff-clean, pytest) |
 | `conductor/` | Project context: [master architecture](./conductor/master-architecture.md), product, workflow, tracks |
@@ -30,18 +32,18 @@ time by the `UnrestrictedRefactorer`.
 ## Runtime Topology
 
 ```text
-                        ┌──────────────────────────────┐
-                        │   Edge Gateway (Workers)     │
-                        │  opencodeweb.xup.workers.dev │
-                        └──────────────┬───────────────┘
-                                       │
-              ┌────────────────────────┼────────────────────────┐
-              ▼                        ▼                        ▼
-      ┌──────────────┐        ┌──────────────┐        ┌──────────────────┐
-      │  Web Portal  │        │  AG Worker   │        │  AiA Engine      │
-      │  pocwu.pages │        │ (automation) │        │ (intelligence)   │
-      │  .dev        │        └──────────────┘        └──────────────────┘
-      └──────────────┘
+                        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                        â”‚   Edge Gateway (Workers)     â”‚
+                        â”‚  opencodeweb.xup.workers.dev â”‚
+                        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                       â”‚
+              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+              â–¼                        â–¼                        â–¼
+      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+      â”‚  Web Portal  â”‚        â”‚  AG Worker   â”‚        â”‚  AiA Engine      â”‚
+      â”‚  pocwu.pages â”‚        â”‚ (automation) â”‚        â”‚ (intelligence)   â”‚
+      â”‚  .dev        â”‚        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ## Quick Start
