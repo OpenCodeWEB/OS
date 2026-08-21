@@ -1,0 +1,12 @@
+{
+  "name": "os-gdbx-relay",
+  "version": "0.1.0",
+  "description": "OS GDBx Relay — GDBx as OS fabric (gun-free), bridges Python fleet to GDBx pool",
+  "type": "module",
+  "scripts": {
+    "start": "node bridge.js",
+    "test": "node --test test/test_bridge.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
