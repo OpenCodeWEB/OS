@@ -53,12 +53,20 @@ $JunkRegex = '(^|/|\\)(__pycache__|\.pytest_cache|\.ruff_cache|dist|node_modules
 
 function Get-DefaultBranch {
   param([string]$RepoPath)
+  # refresh remote HEAD tracking ref (safe, no writes to history)
+  git -C $RepoPath remote set-head origin -a 2>$null | Out-Null
   $head = git -C $RepoPath symbolic-ref refs/remotes/origin/HEAD 2>$null
   if ($head) { return $head -replace 'refs/remotes/origin/', '' }
   foreach ($c in @("main", "master", "Dev")) {
     if (git -C $RepoPath show-ref --verify --quiet "refs/heads/$c") { return $c }
   }
   return $null
+}
+
+function Test-RemoteReachable {
+  param([string]$RepoPath)
+  git -C $RepoPath ls-remote origin HEAD 2>$null | Out-Null
+  return ($LASTEXITCODE -eq 0)
 }
 
 function Get-MeaningfulStatus {
@@ -97,8 +105,14 @@ Get-ChildItem -Directory -Path $Root | Where-Object { Test-Path (Join-Path $_.Fu
     Dirty = $dirty; Unpushed = $aheadList.Count; Action = ""
   }
 
+  # Local-only archive? (remote missing / 404) — audit only, never push
+  $remoteOk = Test-RemoteReachable $path
+
   # ---- 1. PRESERVE -------------------------------------------------
   if ($Push) {
+    if (-not $remoteOk) {
+      $row.Action = "local-only (no GitHub repo) - skipped"
+    } else {
     if ($dirty -gt 0) {
       git -C $path add -A 2>$null | Out-Null
       $st.Junk | ForEach-Object {
@@ -120,10 +134,11 @@ Get-ChildItem -Directory -Path $Root | Where-Object { Test-Path (Join-Path $_.Fu
     $out = git -C $path push origin $branch 2>&1
     if ($LASTEXITCODE -eq 0) { $row.Action += "pushed->origin/$branch; " }
     else { $row.Action += "PUSH-FAIL: $(Format-Bullet ($out -join ' ')); " }
+    }
   }
 
   # ---- 2. MERGE TO PRODUCTION --------------------------------------
-  if ($MergeProd -and $default -and $branch -ne $default) {
+  if ($MergeProd -and $remoteOk -and $default -and $branch -ne $default) {
     git -C $path merge-base --is-ancestor $default $branch 2>$null | Out-Null
     if ($LASTEXITCODE -eq 0) {
       $out = git -C $path push origin "${branch}:refs/heads/$default" 2>&1
@@ -135,7 +150,8 @@ Get-ChildItem -Directory -Path $Root | Where-Object { Test-Path (Join-Path $_.Fu
   }
 
   if (-not $row.Action) {
-    if ($dirty -gt 0 -or $aheadList.Count -gt 0) { $row.Action = "NEEDS -Push" }
+    if (-not $remoteOk) { $row.Action = "local-only (no GitHub repo)" }
+    elseif ($dirty -gt 0 -or $aheadList.Count -gt 0) { $row.Action = "NEEDS -Push" }
     else { $row.Action = "clean OK" }
   }
 
