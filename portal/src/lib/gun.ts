@@ -7,7 +7,7 @@
  * (`subscribePosts`, `publishPost`, `publishComment`, `getGun`,
  * `getPeerCount`, `getRelayUrls`, `deriveGunKey`, `refreshSouls`,
  * `startPresenceHeartbeat`, `fetchPresence`, types …) keeps working with the
- * same signatures, but the transport underneath is GDBX1-signed, PoW-gated,
+ * same signatures, but the transport underneath is GDBx-signed, PoW-gated,
  * FirewallGuard-enforced and pool-replicated.
  *
  * GunX feature parity preserved ON GDBx (nothing lost):
