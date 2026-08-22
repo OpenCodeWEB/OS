@@ -163,7 +163,7 @@ $results |
   Select-Object Repo, Branch, Prod, Dirty, Unpushed, Action |
   Format-Table -AutoSize | Out-String -Width 220 | Write-Output
 
-$needsWork = $results | Where-Object { $_.Action -notmatch "clean OK" }
+$needsWork = @($results | Where-Object { $_.Action -notmatch "clean OK" })
 Write-Output ("SUMMARY: {0} repos - {1} need attention" -f $results.Count, $needsWork.Count)
 if ($needsWork.Count -gt 0) {
   $needsWork | ForEach-Object { Write-Output ("  * {0} [{1}] -> {2}" -f $_.Repo, $_.Branch, $_.Action) }
