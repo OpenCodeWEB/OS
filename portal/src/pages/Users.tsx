@@ -9,6 +9,11 @@ import {
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { timeAgo } from "../utils/users-time-ago.js";
+import {
+  startPresenceHeartbeat,
+  stopPresenceHeartbeat,
+  fetchPresence,
+} from "../lib/gdbx";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -287,6 +292,12 @@ export default function Users() {
   /**
    * Fetch user list — optionally silent (no skeleton on re-fetch).
    * Aborts any in-flight request so polls can never resolve out of order.
+   *
+   * Sources merged (GunX presence parity, on .GDBx):
+   *   1. /api/users            — legacy KV session listing (best-effort)
+   *   2. GDBx pool presence    — signed heartbeats from logged-in visitors
+   * The pool is authoritative when KV is empty (stateless-token logins never
+   * write session:* keys once the free-tier KV budget is exhausted).
    */
   const fetchUsers = useCallback(async (silent = false) => {
     abortRef.current?.abort();
@@ -298,10 +309,37 @@ export default function Users() {
     setError(null);
 
     try {
-      const r = await fetch("/api/users", { signal: controller.signal });
-      if (!r.ok) throw new Error("Failed to fetch users");
-      const data = (await r.json()) as { users: UserEntry[] };
-      setUsers(data.users);
+      const [kvRes, presence] = await Promise.all([
+        fetch("/api/users", { signal: controller.signal })
+          .then((r) => (r.ok ? r.json() : { users: [] }))
+          .catch(() => ({ users: [] as UserEntry[] })),
+        fetchPresence().catch(() => []),
+      ]);
+
+      const kvUsers = ((kvRes as { users?: UserEntry[] }).users || []) as UserEntry[];
+      const byLogin = new Map<string, UserEntry>();
+      for (const u of kvUsers) byLogin.set(u.login, u);
+      for (const p of presence) {
+        const existing = byLogin.get(p.login);
+        // Pool entry wins when fresher or absent
+        if (!existing || p.online || existing.status !== "online") {
+          byLogin.set(p.login, {
+            login: p.login,
+            id: p.id,
+            avatar: p.avatar,
+            name: p.name,
+            status: p.online ? "online" : "offline",
+            lastSeen: existing?.lastSeen ?? p.lastSeenIso,
+            joinedAt:
+              existing && new Date(existing.joinedAt).getTime() <
+                new Date(p.lastSeenIso).getTime()
+                ? existing.joinedAt
+                : p.lastSeenIso,
+          });
+        }
+      }
+
+      setUsers(Array.from(byLogin.values()));
       setLastSync(new Date());
     } catch (err) {
       if ((err as Error).name !== "AbortError" && !silent) {
@@ -315,6 +353,18 @@ export default function Users() {
       }
     }
   }, []);
+
+  // ── Presence heartbeat: logged-in user appears in the directory ──
+  useEffect(() => {
+    if (!currentUser) return;
+    startPresenceHeartbeat({
+      login: currentUser.login,
+      id: currentUser.id,
+      avatar: currentUser.avatar,
+      name: currentUser.name,
+    });
+    return () => stopPresenceHeartbeat();
+  }, [currentUser]);
 
   // ── Initial fetch ──────────────────────────────────────────────
   useEffect(() => {

@@ -6,6 +6,12 @@ import App from "./App";
 import "./index.css";
 
 /* ------------------------------------------------------------------ */
+/*  GDBx warmup — open the sovereign hub at app boot so community      */
+/*  data is live the moment a user logs in (no wait on first visit)    */
+/* ------------------------------------------------------------------ */
+import "./lib/gdbx";
+
+/* ------------------------------------------------------------------ */
 /*  Register Service Worker for PWA offline support                    */
 /* ------------------------------------------------------------------ */
 if ("serviceWorker" in navigator) {
