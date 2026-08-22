@@ -503,3 +503,101 @@ export function __gdbxState() {
     subscribers: postsSubs.size,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/*  Presence directory (GunX joinPresence/onPeers parity, on GDBx)     */
+/*                                                                     */
+/*  Logged-in visitors heartbeat a signed delta to                     */
+/*    pocwu/presence/<login> = {login,id,avatar,name,lastSeen}         */
+/*  every 60 s. The Users Directory reads the prefix and marks entries */
+/*  fresh (<130 s) as online. No KV, no session listing — pure pool.   */
+/* ------------------------------------------------------------------ */
+
+const PRESENCE_PREFIX = "pocwu/presence/";
+const PRESENCE_FRESH_MS = 130_000; // slightly above the 60s beat + slack
+
+let presenceTimer: ReturnType<typeof setInterval> | null = null;
+
+export interface PresenceUser {
+  login: string;
+  id: number;
+  avatar: string;
+  name: string;
+}
+
+/** Start heartbeating this user's presence into the pool (idempotent). */
+export function startPresenceHeartbeat(user: PresenceUser): void {
+  boot();
+  const beat = () => {
+    void putDeltas([
+      {
+        key: `${PRESENCE_PREFIX}${user.login}`,
+        value: JSON.stringify({ ...user, lastSeen: new Date().toISOString() }),
+      },
+    ]).catch((e) => console.warn("[gdbx] presence beat failed:", e));
+  };
+  beat();
+  if (!presenceTimer) {
+    presenceTimer = setInterval(beat, 60_000);
+    if (typeof window !== "undefined") {
+      window.addEventListener("pagehide", () => stopPresenceHeartbeat());
+    }
+  }
+}
+
+export function stopPresenceHeartbeat(): void {
+  if (presenceTimer) {
+    clearInterval(presenceTimer);
+    presenceTimer = null;
+  }
+}
+
+export interface PresenceEntry extends PresenceUser {
+  lastSeenIso: string;
+  ageMs: number;
+  online: boolean;
+}
+
+/**
+ * Read the live presence directory from the pool.
+ * @param maxAgeMs drop entries older than this (default 24 h)
+ */
+export async function fetchPresence(
+  maxAgeMs = 24 * 60 * 60 * 1000,
+): Promise<PresenceEntry[]> {
+  try {
+    const res = await fetch(
+      `${WORKER_BASE}/sync/${COMMUNITY.addr}?prefix=${encodeURIComponent(PRESENCE_PREFIX)}`,
+    );
+    if (!res.ok) return [];
+    const data = (await res.json()) as { entries?: Array<{ key: string; value: string; clock?: number }> };
+    const now = Date.now();
+    const out: PresenceEntry[] = [];
+    for (const e of data.entries || []) {
+      if (!e.key.startsWith(PRESENCE_PREFIX)) continue;
+      try {
+        const u = JSON.parse(String(e.value)) as PresenceUser & { lastSeen?: string };
+        if (!u.login) continue;
+        const clock = typeof e.clock === "number" ? e.clock : now;
+        const ageMs = Math.max(0, now - clock);
+        if (ageMs > maxAgeMs) continue;
+        out.push({
+          login: u.login,
+          id: u.id ?? 0,
+          avatar: u.avatar || "",
+          name: u.name || u.login,
+          lastSeenIso: u.lastSeen || new Date(clock).toISOString(),
+          ageMs,
+          online: ageMs < PRESENCE_FRESH_MS,
+        });
+      } catch {
+        /* skip malformed */
+      }
+    }
+    // newest first
+    out.sort((a, b) => a.ageMs - b.ageMs);
+    return out;
+  } catch {
+    return [];
+  }
+}
