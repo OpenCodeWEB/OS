@@ -151,6 +151,31 @@ const postsMap = new Map<string, GunPost>();
 const seenKeys = new Set<string>();
 
 /* ------------------------------------------------------------------ */
+/*  Instant-live cache — hydrate from localStorage BEFORE any network  */
+/* ------------------------------------------------------------------ */
+
+const CACHE_KEY = "gdbx-community-cache-v1";
+
+function hydrateCache(): void {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw) as Record<string, GunPost>;
+    for (const [id, p] of Object.entries(obj)) {
+      if (p && p.id && p.title) postsMap.set(id, p);
+    }
+  } catch {}
+}
+
+function persistCache(): void {
+  try {
+    const obj: Record<string, GunPost> = {};
+    for (const [id, p] of postsMap) obj[id] = p;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(obj));
+  } catch {}
+}
+
+/* ------------------------------------------------------------------ */
 /*  Low-level write (WS preferred, HTTP fallback)                      */
 /* ------------------------------------------------------------------ */
 
@@ -278,6 +303,7 @@ function parseEntry(entry: DeltaEntry): void {
 function emitPosts(): void {
   const snapshot: Record<string, GunPost> = {};
   for (const [id, p] of postsMap) snapshot[id] = p;
+  persistCache();
   for (const cb of postsSubs) cb(snapshot);
 }
 
@@ -351,6 +377,7 @@ let stopPolling: (() => void) | null = null;
 function boot(): void {
   if (booted) return;
   booted = true;
+  hydrateCache();
   connect();
   // periodic refresh replaces gun's refreshSouls polling (20s → same cadence)
   if (!stopPolling) {
@@ -364,6 +391,17 @@ function boot(): void {
     }
   }
   void refreshPrefix(POSTS_PREFIX);
+}
+
+/**
+ * Login-instant guarantee: warm the hub + cache at app root (main.tsx imports
+ * this module for side effects), so by the time a user reaches the community
+ * page the WS is open and posts are already in localStorage/memory.
+ */
+if (typeof window !== "undefined") {
+  try {
+    boot();
+  } catch {}
 }
 
 /* ------------------------------------------------------------------ */
