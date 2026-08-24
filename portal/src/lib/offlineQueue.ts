@@ -16,7 +16,7 @@
  * The queue is deliberately generic: `configure()` maps action types to
  * runner functions, so any async side effect can be queued.
  */
-import { getPeerCount } from "./gun";
+import { getPeerCount } from "./gdbx";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */

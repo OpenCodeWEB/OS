@@ -1,13 +1,13 @@
 /**
  * queueRunners — registers the GunDB runners used by the offline queue.
  *
- * Kept separate from offlineQueue.ts so the generic queue stays Gun-free;
+ * Kept separate from offlineQueue.ts so the generic queue stays relay-free;
  * any module that may enqueue actions calls ensureQueueConfigured() first
  * (idempotent).
  */
 import { offlineQueue, type QueuedAction } from "./offlineQueue";
-import { publishPost, unpublishPost, publishComment } from "./gun";
-import type { GunPost, GunComment } from "./gun";
+import { publishPost, unpublishPost, publishComment } from "./gdbx";
+import type { GunPost, GunComment } from "./gdbx";
 
 let configured = false;
 

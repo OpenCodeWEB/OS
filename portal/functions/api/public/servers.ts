@@ -11,7 +11,7 @@ import { getUserLogin } from "../_shared";
 interface PublicServer {
   id: string;
   name: string;
-  type: "gun-relay" | "sandbox-preview" | "daemon-node" | "custom";
+  type: "gunx-relay" | "sandbox-preview" | "daemon-node" | "custom";
   url: string;
   owner: string;
   status: "online" | "offline" | "maintenance";
@@ -29,17 +29,17 @@ interface PublicServer {
 // /C, /api/gun/relay — and the decommissioned node-win-01 worker were removed.)
 const SEED_SERVERS: PublicServer[] = [
   {
-    id: "gun-relay-1",
+    id: "gunx-relay-1",
     name: "GunDB Main Relay",
-    type: "gun-relay",
-    url: "wss://absup:8765/gun",
+    type: "gunx-relay",
+    url: "wss://absup:8787/ws",
     owner: "ABsUP",
     status: "online",
     region: "ABsUP Node (Local OS)",
     version: "0.2020.1239",
     description:
-      "Primary GunDB WebSocket relay for P2P real-time sync across peers. Runs from github.com/OpenCodeWEB/Gun (OS/gun-relay/relay.js, TLS). Routes community posts, comments, and presence between browsers and daemons.",
-    tags: ["gun", "websocket", "relay", "p2p", "realtime"],
+      "Primary GunX-compatible WebSocket relay (GDBx pool) for P2P real-time sync across peers. Runs from github.com/OpenCodeWEB/Gun (OS/gun-relay/relay.js, TLS). Routes community posts, comments, and presence between browsers and daemons.",
+    tags: ["GunX", "websocket", "relay", "p2p", "realtime"],
     uptime: 99.9,
     lastSeen: new Date().toISOString(),
     createdAt: "2026-07-01T00:00:00.000Z",

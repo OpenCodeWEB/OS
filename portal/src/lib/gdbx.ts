@@ -291,7 +291,7 @@ function parseEntry(entry: DeltaEntry): void {
   }
 
   // post entries only here (comments live under their own prefix and are not
-  // part of the posts map — same as the old gun soul separation)
+  // part of the posts map — same as the old soul separation)
   if (!entry.key.startsWith(POSTS_PREFIX)) return;
 
   const post = parsed as unknown as GunPost;
@@ -379,7 +379,7 @@ function boot(): void {
   booted = true;
   hydrateCache();
   connect();
-  // periodic refresh replaces gun's refreshSouls polling (20s → same cadence)
+  // periodic refresh replaces the legacy refresh polling (20s → same cadence)
   if (!stopPolling) {
     const timer = setInterval(() => {
       if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
