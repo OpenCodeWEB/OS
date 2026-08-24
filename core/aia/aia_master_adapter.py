@@ -69,7 +69,7 @@ class MasterEngineAdapter:
     def publish_brain(self) -> dict[str, Any]:
         """Mirror a small flat brain summary to ``os/aia/brain`` on the graph."""
         if self.bridge is None:
-            from core.gun_bridge import GunBridge
+            from core.gunx_bridge import GunBridge
 
             self.bridge = GunBridge()
         summary = self.brain_summary()

@@ -1,7 +1,7 @@
 """Smoke test for the GunDB bridge + Python client (Track 4).
 
 Run from D:\\OpenCodeWEB\\OS with the bridge running:
-    $env:GUN_BRIDGE_TOKEN="..." ; python -m core.test_gun_bridge
+    $env:GUNX_BRIDGE_TOKEN="..." ; python -m core.test_gun_bridge
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from core.gun_bridge import GunBridge
 
 
 def main() -> None:
-    bridge = GunBridge()  # token from env GUN_BRIDGE_TOKEN
+    bridge = GunBridge()  # token from env GUNX_BRIDGE_TOKEN
     health = bridge.health()
     assert health.get("ok"), health
     print(f"health: {health['service']} | relay: {health['relay']} | uptime: {health['uptime_s']}s")

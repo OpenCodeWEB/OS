@@ -2,15 +2,15 @@
  * GDBx portal sync adapter — sovereign community fabric (replaces GunDB/GunX).
  *
  * Architecture (Gemini-consulted migration, Top 1: same-interface adapter):
- *   Browser Tab A  ←─wss─→  [GDBx hub wss://gdbx.xup.workers.dev/ws?addr=…]  ←─wss─→  Browser Tab B
- *        ↕                                   ↕ (GDBx signed + PoW + FirewallGuard + LWW CRDT)
+ *   Browser Tab A  ←─wss─→  [GDBx hub wss://gdbx-do.xup.workers.dev/ws?addr=…]  ←─wss─→  Browser Tab B
+ *        ↕                                   ↕ (GDBX1 signed + PoW + FirewallGuard + LWW CRDT)
  *   localStorage cache                [GDBxMirrorDO pool — pool-replicated]
  *
  * Wire protocol (identical to gdbx.pages.dev playground, proven live):
  *   - PUT  : WS {type:"put", addr, pubkey, pubkeyHex, deltas[], ts, nonce, diff, hash, sig}
- *            fallback POST https://gdbx.xup.workers.dev/sync (same body)
- *   - READ : GET  https://gdbx.xup.workers.dev/sync/:addr?prefix=…
- *   - SIG  : GDBx envelope "GDBx"+JSON{m,s} — canonical key-sorted JSON,
+ *            fallback POST https://gdbx-do.xup.workers.dev/sync (same body)
+ *   - READ : GET  https://gdbx-do.xup.workers.dev/sync/:addr?prefix=…
+ *   - SIG  : GDBX1 envelope "GDBX1"+JSON{m,s} — canonical key-sorted JSON,
  *            ECDSA P-256/SHA-256 over SHA256(m) (double-hash, matches worker verify)
  *   - PoW  : SHA256(`${addr}:${pub}:${action}:${ts}:${nonce}`) startsWith "00"
  *
@@ -33,8 +33,8 @@ const COMMUNITY = {
   addr: "aeac2ygbljleaiocudsbqijkjrljk2z5nhtq3xtwovu46cfmzqarwju6gq",
 };
 
-const WORKER_BASE = "https://gdbx.xup.workers.dev";
-const WS_URL = "wss://gdbx.xup.workers.dev/ws";
+const WORKER_BASE = "https://gdbx-do.xup.workers.dev";
+const WS_URL = "wss://gdbx-do.xup.workers.dev/ws";
 
 const POSTS_PREFIX = "pocwu/community/posts/";
 const COMMENTS_PREFIX = "pocwu/community/comments/";
@@ -76,7 +76,7 @@ interface DeltaEntry {
 }
 
 /* ------------------------------------------------------------------ */
-/*  GDBx crypto helpers (pure WebCrypto — matches sdk/gdbx-crypto.js) */
+/*  GDBX1 crypto helpers (pure WebCrypto — matches sdk/gdbx-crypto.js) */
 /* ------------------------------------------------------------------ */
 
 function canonicalJson(obj: unknown): string {
@@ -118,13 +118,13 @@ async function getSignKey(): Promise<CryptoKey> {
   return _signKey;
 }
 
-/** GDBx sign over a canonical body (double-hash, matches worker/src/verify.js). */
-async function signEnvelope(body: Record<string, unknown>): Promise<string> {
+/** GDBX1 sign over a canonical body (double-hash, matches worker/src/verify.js). */
+async function gdbx1Sign(body: Record<string, unknown>): Promise<string> {
   const m = canonicalJson(body);
   const key = await getSignKey();
   const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(m));
   const rawSig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, hash);
-  return "GDBx" + JSON.stringify({ m, s: bytesToB64url(new Uint8Array(rawSig)) });
+  return "GDBX1" + JSON.stringify({ m, s: bytesToB64url(new Uint8Array(rawSig)) });
 }
 
 async function minePoW(action: string, ts: number): Promise<{ nonce: number; hash: string; diff: number }> {
@@ -193,7 +193,7 @@ async function ensureRegistered(): Promise<void> {
   }
   const ts = Date.now();
   const pow = await minePoW("did.register", ts);
-  const sig = await signEnvelope({ addr: COMMUNITY.addr, action: "did.register", ts, payload: null });
+  const sig = await gdbx1Sign({ addr: COMMUNITY.addr, action: "did.register", ts, payload: null });
   const res = await fetch(`${WORKER_BASE}/did`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -219,7 +219,7 @@ async function putDeltas(deltas: Array<{ key: string; value: string }>, retries 
   await ensureRegistered();
   const ts = Date.now();
   const pow = await minePoW("sync.put", ts);
-  const sig = await signEnvelope({
+  const sig = await gdbx1Sign({
     addr: COMMUNITY.addr,
     action: "sync.put",
     ts,

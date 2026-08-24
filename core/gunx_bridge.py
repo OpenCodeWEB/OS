@@ -9,7 +9,7 @@ global graph the portal syncs through.
 
 Usage::
 
-    from core.gun_bridge import GunBridge
+    from core.gunx_bridge import GunBridge
 
     bridge = GunBridge()                      # https://absup:8766, token from env
     bridge.put("chat/main", "m1", {"from": "alice", "text": "hi"})
@@ -34,8 +34,8 @@ import urllib.parse
 import urllib.request
 from typing import Any, Callable, Dict, List, Optional
 
-DEFAULT_BASE_URL = os.environ.get("GUN_BRIDGE_URL", "https://absup:8766")
-DEFAULT_TOKEN = os.environ.get("GUN_BRIDGE_TOKEN", "")
+DEFAULT_BASE_URL = os.environ.get("GUNX_BRIDGE_URL", "https://absup:8766")
+DEFAULT_TOKEN = os.environ.get("GUNX_BRIDGE_TOKEN", "")
 
 
 class GunBridgeError(RuntimeError):
@@ -138,7 +138,7 @@ class GunBridge:
                 except GunBridgeError:
                     pass  # transient; keep polling
                 except Exception as e:  # noqa: BLE001 — watchdog loop must survive
-                    print(f"[gun_bridge] watch {soul} error: {e}")
+                    print(f"[gunx_bridge] watch {soul} error: {e}")
                 time.sleep(poll_seconds)
 
         thread = threading.Thread(target=worker, name=f"gun-bridge-watch-{soul}", daemon=True)

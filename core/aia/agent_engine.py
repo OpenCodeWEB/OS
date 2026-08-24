@@ -268,12 +268,12 @@ class AgentEngine:
     def _gunx_publish(self, kind: str, data: dict[str, Any]) -> None:
         """Best-effort publish of AiA events to the GunX global graph via the
         OS GunBridge (soul: ``os/aia/events``, e.g. ``learn-<ts>``). Requires
-        ``GUN_BRIDGE_TOKEN`` (plus optional ``GUN_BRIDGE_URL``); silently
+        ``GUNX_BRIDGE_TOKEN`` (plus optional ``GUNX_BRIDGE_URL``); silently
         no-ops when unconfigured so telemetry never breaks the engine."""
-        token = os.environ.get("GUN_BRIDGE_TOKEN", "")
+        token = os.environ.get("GUNX_BRIDGE_TOKEN", "")
         if not token:
             return
-        url = os.environ.get("GUN_BRIDGE_URL", "https://absup:8766").rstrip("/")
+        url = os.environ.get("GUNX_BRIDGE_URL", "https://absup:8766").rstrip("/")
         # Flat payload (GunX graph rule): soul + key + flat value object.
         payload = {"soul": "os/aia/events", "key": f"{kind}-{int(time.time() * 1000)}",
                    "value": {"kind": kind, "ts": time.time(), **data}}
