@@ -16,7 +16,7 @@ import { useAuth } from "../contexts/AuthContext";
 interface PublicServer {
   id: string;
   name: string;
-  type: "gun-relay" | "sandbox-preview" | "daemon-node" | "custom";
+  type: "gunx-relay" | "sandbox-preview" | "daemon-node" | "custom";
   url: string;
   owner: string;
   status: "online" | "offline" | "maintenance";
@@ -188,7 +188,7 @@ const TYPE_META: Record<
   string,
   { label: string; icon: ReactNode; badge: string }
 > = {
-  "gun-relay": {
+  "gunx-relay": {
     label: "GunDB Relay",
     icon: <IconRadio className="h-5 w-5" />,
     badge: "border-sky-500/30 bg-sky-500/10 text-sky-300",
@@ -236,7 +236,7 @@ const STATUS_META: Record<
 
 const FILTER_TYPES = [
   "All",
-  "gun-relay",
+  "gunx-relay",
   "sandbox-preview",
   "daemon-node",
   "custom",
@@ -373,7 +373,7 @@ const ServerCard = memo(function ServerCard({
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-600 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-violet-500/60 hover:text-violet-300"
           >
             <IconLink className="h-3 w-3" />
-            {server.type === "gun-relay" ? "Connect Relay" : "Open Server"}
+            {server.type === "gunx-relay" ? "Connect Relay" : "Open Server"}
           </a>
         ) : (
           <code className="shrink-0 rounded-lg bg-slate-800/60 px-2 py-1 text-[10px] text-slate-500">
@@ -707,7 +707,7 @@ export default function Servers() {
                     }
                     className={inputClass}
                   >
-                    <option value="gun-relay">GunDB Relay</option>
+                    <option value="gunx-relay">GunDB Relay</option>
                     <option value="sandbox-preview">Sandbox Preview</option>
                     <option value="daemon-node">Daemon Node</option>
                     <option value="custom">Custom Service</option>

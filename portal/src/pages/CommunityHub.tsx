@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useGunSync, type GunPost } from "../hooks/useGunSync";
+import { useGunSync, type GunPost } from "../hooks/useGdbxSync";
 import { useOfflineQueue } from "../hooks/useOfflineQueue";
 import { useLocalSearch } from "../hooks/useLocalSearch";
 

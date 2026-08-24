@@ -16,11 +16,11 @@ import {
   getGun,
   type GunPost,
   type GunComment,
-} from "../lib/gun";
+} from "../lib/gdbx";
 import { offlineQueue } from "../lib/offlineQueue";
 import { ensureQueueConfigured } from "../lib/queueRunners";
 
-// Gun publishes are routed through the durable offline queue:
+// GDBx publishes are routed through the durable offline queue:
 // online → executed immediately; offline → persisted and retried with backoff.
 ensureQueueConfigured();
 
@@ -95,9 +95,9 @@ export function useGunSync(options?: UseGunSyncOptions): UseGunSyncReturn {
   // Track live relay connections (peers) — updates every 5 s
   useEffect(() => {
     const update = () => {
-      const gun = getGun();
+      const gdbx = getGun();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const peers = (gun as any)._?.peers;
+      const peers = (gdbx as any)._?.peers;
       const count = peers ? Object.keys(peers).length : 0;
       setPeerCount((prev) => (prev === count ? prev : count));
     };
