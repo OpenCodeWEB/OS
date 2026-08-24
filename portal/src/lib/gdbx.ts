@@ -54,7 +54,7 @@ export interface GunPost {
   replyCount: number;
   createdAt: string;
   updatedAt: string;
-  _source: "gun";
+  _source: "gdbx";
 }
 
 export interface GunComment {
@@ -296,7 +296,7 @@ function parseEntry(entry: DeltaEntry): void {
 
   const post = parsed as unknown as GunPost;
   if (!post.id || !post.title) return;
-  postsMap.set(post.id, { ...post, _source: "gun" });
+  postsMap.set(post.id, { ...post, _source: "gdbx" });
   seenKeys.add(entry.key);
 }
 

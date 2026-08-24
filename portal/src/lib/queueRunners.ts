@@ -16,13 +16,13 @@ export function ensureQueueConfigured(): void {
   if (configured) return;
   configured = true;
   offlineQueue.configure({
-    "gun.post": async (a: QueuedAction) => {
+    "gdbx.post": async (a: QueuedAction) => {
       publishPost(a.payload as GunPost);
     },
-    "gun.unpost": async (a: QueuedAction) => {
+    "gdbx.unpost": async (a: QueuedAction) => {
       unpublishPost(a.payload as string);
     },
-    "gun.comment": async (a: QueuedAction) => {
+    "gdbx.comment": async (a: QueuedAction) => {
       publishComment(a.payload as GunComment);
     },
   });

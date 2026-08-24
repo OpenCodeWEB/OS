@@ -117,7 +117,7 @@ export function useGunSync(options?: UseGunSyncOptions): UseGunSyncReturn {
         // GunDB may emit null for deleted entries, or partial/invalid data
         if (!post || !post.id || !post.title) continue;
         // Merge _source flag
-        const enriched: GunPost = { ...post, _source: "gun" };
+        const enriched: GunPost = { ...post, _source: "gdbx" };
         gunPostsRef.current.set(id, enriched);
         valid.push(enriched);
       }
@@ -178,17 +178,17 @@ export function useGunSync(options?: UseGunSyncOptions): UseGunSyncReturn {
       replyCount: post.replyCount,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
-      _source: "gun",
+      _source: "gdbx",
     };
-    void offlineQueue.enqueue("gun.post", gp);
+    void offlineQueue.enqueue("gdbx.post", gp);
   }, []);
 
   const publishDeleted = useCallback((postId: string) => {
-    void offlineQueue.enqueue("gun.unpost", postId);
+    void offlineQueue.enqueue("gdbx.unpost", postId);
   }, []);
 
   const publishNewComment = useCallback((comment: GunComment) => {
-    void offlineQueue.enqueue("gun.comment", comment);
+    void offlineQueue.enqueue("gdbx.comment", comment);
   }, []);
 
   return {
