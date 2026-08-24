@@ -20,7 +20,7 @@ test("os gdbx-relay: put/get round-trip via mocked SDK", async () => {
 });
 
 test("os gdbx-relay: health shape", async () => {
-  const health = { ok: true, use_gdbx: true, addr: "aeaqmock", api: "https://gdbx-do.xup.workers.dev" };
+  const health = { ok: true, use_gdbx: true, addr: "aeaqmock", api: "https://gdbx.xup.workers.dev" };
   assert.equal(health.ok, true);
   assert.equal(health.use_gdbx, true);
 });

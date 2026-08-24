@@ -7,7 +7,7 @@
  *   GET  /gdbx/health -> pool + identity
  *
  * Env:
- *   GDBX_API=https://gdbx-do.xup.workers.dev
+ *   GDBX_API=https://gdbx.xup.workers.dev
  *   GDBX_PUB / GDBX_PRIV / GDBX_PUBKEY_HEX / GDBX_ADDR
  *   PORT=8767 (default, next to gun-relay :8766)
  *   USE_GDBX=1 (feature flag)
@@ -31,7 +31,7 @@ try {
 }
 
 const PORT = Number(process.env.PORT || 8767);
-const API = process.env.GDBX_API || "https://gdbx-do.xup.workers.dev";
+const API = process.env.GDBX_API || "https://gdbx.xup.workers.dev";
 const USE_GDBX = process.env.USE_GDBX !== "0";
 
 // identity — load or generate ephemeral (and register)
